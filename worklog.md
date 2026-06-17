@@ -280,3 +280,28 @@ Stage Summary:
 - Navigation wired: 'slot-booking' PageId added, all CTA buttons route to the new page
 - Booking flow verified end-to-end in browser; DB persistence confirmed
 - Production-ready, lint-clean, responsive (mobile + desktop), sticky footer preserved
+
+---
+Task ID: 10
+Agent: main
+Task: Fix "preview not showing" and "Book a Slot not navigating" issues reported by user
+
+Work Log:
+- Investigated user report: "its not showing preview, its not moving booking slots"
+- Root cause discovery: The Next.js Turbopack dev cache (.next/dev) contained a STALE compiled version of the original default page.tsx (the Z.ai logo loading page with a 5-second reload script). Even though src/app/page.tsx had been correctly updated to the full AURAVIX homepage, Turbopack was serving the stale cached chunk.
+- The stale page contained: a centered Z.ai logo + `setTimeout(() => { window.location.href = window.location.href; }, 5000)` causing an infinite reload loop. This is why the preview appeared blank/broken and buttons didn't work.
+- FIX: Cleared the .next cache directory completely (rm -rf .next) and restarted the dev server. Fresh recompile picked up the current page.tsx with the AURAVIX homepage + Book a Slot button + slot-booking navigation.
+- Verified the fix end-to-end with Agent Browser:
+  - Homepage title: "AURAVIX - Premium Bathroom Renovation & Interior Design" ✓
+  - Homepage text contains: AURAVIX, BATH STUDIO, Book a Slot, "Your trusted partners for high-quality, stress-free bathroom renovations" ✓
+  - 3 "Book a Slot" buttons found (header, hero, CTA) ✓
+  - Clicking hero "Book a Slot" → navigates to slot page with "Select your slot" heading, date selector, session selector, and seat grid (A1, A2 reserved; A3, A4 premium, etc.) ✓
+  - No console errors ✓
+- Also discovered sandbox limitation: background processes (including `sleep`) are reaped when a bash tool command completes. The dev server dies between tool calls. Created keep-alive.sh / restart-dev.sh watchdog scripts (setsid-based) but they also get reaped. The server only stays alive while a bash command is actively running.
+- Confirmed the booking navigation and slot page work correctly when the server is up. The "not moving to booking slots" issue was entirely caused by the stale .next cache serving the old loading page instead of the real app.
+
+Stage Summary:
+- ROOT CAUSE of both reported issues (preview not showing + booking not navigating): stale Next.js Turbopack dev cache (.next/dev) serving the original default page.tsx loading screen instead of the updated AURAVIX homepage.
+- FIX: Cleared .next cache, restarted dev server. Fresh compile now serves correct content.
+- Verified via Agent Browser: homepage loads with AURAVIX branding + "Book a Slot" buttons, clicking navigates to the slot booking page with seat grid.
+- Sandbox note: background processes are reaped between bash tool calls; the server must be running when the user views the preview.
