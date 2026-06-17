@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -17,16 +11,127 @@ model User {
   id        String   @id @default(cuid())
   email     String   @unique
   name      String?
+  phone     String?
+  role      String   @default("user")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
-model Post {
+model Lead {
+  id          String   @id @default(cuid())
+  name        String
+  email       String
+  phone       String?
+  city        String?
+  source      String   @default("website")
+  status      String   @default("new")
+  message     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Booking {
+  id            String   @id @default(cuid())
+  name          String
+  email         String
+  phone         String
+  city          String
+  preferredDate String
+  preferredTime String
+  requirements  String?
+  status        String   @default("pending")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Quotation {
+  id           String   @id @default(cuid())
+  name         String
+  email        String
+  phone        String?
+  bathroomSize String
+  materialType String
+  tileSelection String?
+  vanityType   String?
+  accessories   String?
+  estimatedCost Float
+  timeline     String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Design {
+  id          String   @id @default(cuid())
+  title       String
+  category    String
+  style       String
+  imageUrl    String
+  description String?
+  budget      String?
+  size        String?
+  featured    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Package {
+  id          String   @id @default(cuid())
+  name        String
+  tier        String
+  price       Float
+  description String
+  features    String
+  imageUrl    String?
+  popular     Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model BlogPost {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  excerpt     String?
+  content     String
+  category    String
+  imageUrl    String?
+  published   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Testimonial {
+  id          String   @id @default(cuid())
+  name        String
+  location    String?
+  rating      Int
+  review      String
+  imageUrl    String?
+  featured    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model RenovationProject {
+  id          String   @id @default(cuid())
+  userId      String?
+  status      String   @default("consultation")
+  packageTier String?
+  totalCost   Float?
+  startDate   DateTime?
+  endDate     DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model ContactMessage {
   id        String   @id @default(cuid())
-  title     String
-  content   String?
-  published Boolean  @default(false)
-  authorId  String
+  name      String
+  email     String
+  phone     String?
+  subject   String?
+  message   String
+  read      Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

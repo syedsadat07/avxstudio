@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px"
+	 viewBox="0 0 40 40" xml:space="preserve">
+  <defs>
+    <linearGradient id="auravixGold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E8C77A"/>
+      <stop offset="50%" stop-color="#D4A96A"/>
+      <stop offset="100%" stop-color="#B8884A"/>
+    </linearGradient>
+  </defs>
+  <!-- Outer hex frame -->
+  <path d="M20 2 L34 10 L34 30 L20 38 L6 30 L6 10 Z" fill="none" stroke="url(#auravixGold)" stroke-width="1.6" stroke-linejoin="round"/>
+  <!-- Stylized droplet / bath basin -->
+  <path d="M20 8 C20 8 14 16 14 21 C14 24.8 16.7 27 20 27 C23.3 27 26 24.8 26 21 C26 16 20 8 20 8 Z" fill="url(#auravixGold)"/>
+  <!-- Inner highlight -->
+  <path d="M18.5 17 C18.5 19 17.5 21 16.5 21.5" fill="none" stroke="#FFFFFF" stroke-width="0.9" stroke-linecap="round" opacity="0.55"/>
+  <!-- Ripple at bottom -->
+  <path d="M11 31 C13 30 15 30 20 31 C25 32 27 32 29 31" fill="none" stroke="url(#auravixGold)" stroke-width="1.2" stroke-linecap="round" opacity="0.8"/>
+</svg>

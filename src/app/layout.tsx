@@ -14,24 +14,17 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Z.ai Code Scaffold - AI-Powered Development",
-  description: "Modern Next.js scaffold optimized for AI-powered development with Z.ai. Built with TypeScript, Tailwind CSS, and shadcn/ui.",
-  keywords: ["Z.ai", "Next.js", "TypeScript", "Tailwind CSS", "shadcn/ui", "AI development", "React"],
-  authors: [{ name: "Z.ai Team" }],
+  title: "AURAVIX - Premium Bathroom Renovation & Interior Design",
+  description: "Transform your bathroom with AURAVIX. Modern designs, expert consultations, transparent pricing, and 10-year warranty. Book your free consultation today.",
+  keywords: ["bathroom renovation", "modern bathroom designs", "bathroom interior", "luxury bathroom", "AURAVIX", "renovation India"],
+  authors: [{ name: "AURAVIX" }],
   icons: {
-    icon: "https://z-cdn.chatglm.cn/z-ai/static/logo.svg",
+    icon: "/favicon.svg",
   },
   openGraph: {
-    title: "Z.ai Code Scaffold",
-    description: "AI-powered development with modern React stack",
-    url: "https://chat.z.ai",
-    siteName: "Z.ai",
+    title: "AURAVIX - Premium Bathroom Renovation & Interior Design",
+    description: "Transform your bathroom with AURAVIX. Modern designs, expert consultations, transparent pricing.",
     type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Z.ai Code Scaffold",
-    description: "AI-powered development with modern React stack",
   },
 };
 
