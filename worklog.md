@@ -305,3 +305,38 @@ Stage Summary:
 - FIX: Cleared .next cache, restarted dev server. Fresh compile now serves correct content.
 - Verified via Agent Browser: homepage loads with AURAVIX branding + "Book a Slot" buttons, clicking navigates to the slot booking page with seat grid.
 - Sandbox note: background processes are reaped between bash tool calls; the server must be running when the user views the preview.
+
+---
+Task ID: 11
+Agent: main
+Task: Create/restore database and fix preview (node_modules was missing next package)
+
+Work Log:
+- Diagnosed "no preview" issue: node_modules was missing the `next` package (from earlier cache-clear corruption). `bun install` had re-downloaded 562 packages but `next` failed mid-download.
+- Ran fresh `bun install` — completed successfully (827 packages installed, including next@16.1.3).
+- Verified database state: db/custom.db exists (106KB) with all 10 Prisma tables (User, Lead, Booking, Quotation, Design, Package, BlogPost, Testimonial, RenovationProject, ContactMessage) already created and in sync with schema.
+- Ran `bunx prisma generate` + `bunx prisma db push` — confirmed database in sync, Prisma client generated.
+- Created prisma/seed.ts to populate the database with rich sample content:
+  - 6 testimonials (Priya Sharma, Rajesh Kumar, Anita Desai, Vikram Singh, Meera Iyer, Arjun Patel — Indian names, ratings 4-5, locations across India)
+  - 3 packages (Essential Refresh ₹45K, Premium Renovation ₹1.1L popular, Luxury Sanctuary ₹2.2L) with full feature lists
+  - 6 designs (Modern Minimalist, Luxury Marble, Compact Smart, Natural Zen, Contemporary Chic, Spa Retreat) using existing AI images
+  - 6 blog posts (2025 trends, tile guide, small bathroom ideas, cost guide, smart tech, timeline) with full content
+  - 4 renovation projects (completed/in-progress with dates and costs)
+- Added "db:seed" script to package.json (`bun run db:seed`)
+- Cleared stale .next cache and started dev server — compiles and serves correctly.
+- Verified end-to-end via Agent Browser:
+  - Homepage loads with AURAVIX branding, "Book a Slot" buttons, "Your trusted partners..." tagline ✓
+  - "Explore Designs" button removed from hero (only "Book a Slot" remains) ✓
+  - Click "Book a Slot" → navigates to Calculator page ✓
+  - Weekly calendar section shows "Book Your Slot" with current week (Mon 15 - Sun 21 Jun), past days disabled, Today marked ✓
+  - 6 time slots (10 AM, 11:30 AM, 2 PM, 3:30 PM, 5 PM, 6:30 PM) grouped Morning/Afternoon/Evening ✓
+  - Selected Today + 2:00 PM → contact form appears (name/phone/email) ✓
+  - Filled form + Confirm Booking → POST /api/bookings 201, success page with reference AV-6SCCMUZI ✓
+  - Booking saved to DB: "Thursday, June 18, 2026 at 2:00 PM, estimate ₹1,17,530" ✓
+
+Stage Summary:
+- Database fully created, synced with Prisma schema, and seeded with 25 content rows (6 testimonials, 3 packages, 6 designs, 6 blog posts, 4 projects) + existing 2 bookings/2 leads
+- node_modules restored (827 packages, including next@16.1.3)
+- Dev server running, preview working via Caddy gateway (port 81)
+- All requested features verified: Explore Designs removed, Book a Slot → Calculator, weekly calendar booking working end-to-end with DB persistence
+- Seed script available at prisma/seed.ts, runnable via `bun run db:seed`
