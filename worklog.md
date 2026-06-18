@@ -340,3 +340,50 @@ Stage Summary:
 - Dev server running, preview working via Caddy gateway (port 81)
 - All requested features verified: Explore Designs removed, Book a Slot → Calculator, weekly calendar booking working end-to-end with DB persistence
 - Seed script available at prisma/seed.ts, runnable via `bun run db:seed`
+
+---
+Task ID: 12
+Agent: main
+Task: Fix black screen on top of hero section + add cool aesthetic animations
+
+Work Log:
+- Diagnosed the "black screen on top of hero" bug via VLM analysis of user's screenshot:
+  - The Header was `position: fixed` + `bg-transparent` when not scrolled
+  - On the home page, the hero has a dark overlay (`from-[#0a0a0a]/90`)
+  - The header text used `text-foreground` (dark color) which was INVISIBLE against the dark hero overlay
+  - Result: the top 80px (header height) appeared as a solid black bar with hidden content
+- Fixed the Header (src/components/layout/Header.tsx):
+  - Added `DARK_HERO_PAGES` detection — header uses WHITE text when over the dark hero (home page, not scrolled)
+  - Added a subtle dark gradient background (`from-black/50 via-black/20 to-transparent`) when over the hero so the header is readable
+  - When scrolled: switches to `bg-background/85 backdrop-blur-xl` (frosted glass effect)
+  - When on non-home pages: uses solid background with dark text
+  - Added entrance animation (slides down from top), hover scale on logo/phone icon, shimmer sweep on Book a Slot button, pulsing glow on CTA
+  - Added `mounted` state guard to prevent SSR hydration mismatch
+- Rewrote the HeroSection (src/components/home/HeroSection.tsx) with cool aesthetic animations:
+  - Parallax scroll effect on background image (moves slower than content)
+  - Two animated gold glow orbs that drift around (top-right + bottom-left) with scale/opacity pulsing
+  - 14 floating gold "dust" particles that rise and fade (generated client-side to avoid hydration mismatch)
+  - Text reveal animations with blur-to-clear effect (staggered)
+  - "Luxury Sanctuary" text has an animated gold underline that draws in
+  - Badge has a rotating Sparkles icon + glow shadow
+  - CTA button has pulsing glow ring + shimmer sweep on hover + animated arrow
+  - Stats cards have hover lift effect + gold gradient overlay on hover + spring scale-in
+  - Scroll indicator at bottom (animated mouse with gold dot)
+  - Softer gradient overlay (`from-[#0a0a0a]/80`) so header area isn't pitch black
+- Fixed hydration mismatch errors:
+  - Created `useParticles` hook that generates random particles only after mount (client-side)
+  - Added `mounted` guards on all parallax `useTransform` values
+  - Header's `overDarkHero` defaults to `false` on server, updates on client mount
+  - Header's `motion.header` initial animation disabled on SSR
+- Verified via Agent Browser:
+  - Header clearly visible (logo, nav, Book a Slot) — black screen GONE ✓
+  - Dark bathroom background with gold accents ✓
+  - 33 animated div elements in hero section ✓
+  - ZERO hydration errors (was 8 before fix) ✓
+  - "Book a Slot" navigation to Calculator page works ✓
+
+Stage Summary:
+- Black screen bug FIXED: header now has a subtle dark gradient background + white text over the hero, making it fully readable
+- Cool animations added: parallax background, drifting gold glow orbs, floating gold particles, blur-in text reveals, animated underline, shimmer button effects, hover-lift stats cards, scroll indicator
+- Hydration errors eliminated (8 → 0) via client-only random generation and mounted guards
+- Hero is now visually stunning and premium-feeling
