@@ -122,20 +122,12 @@ export function HeroSection() {
           className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4"
         >
           <Button
-            onClick={() => navigate('slot-booking')}
+            onClick={() => navigate('calculator')}
             size="lg"
             className="bg-gold text-gold-foreground hover:bg-gold/90 font-semibold tracking-wide px-8 h-12 text-base shadow-lg shadow-gold/20 transition-all duration-300 hover:shadow-xl hover:shadow-gold/30"
           >
             Book a Slot
             <ArrowRight className="size-4 ml-1" />
-          </Button>
-          <Button
-            onClick={() => navigate('lookbook')}
-            variant="outline"
-            size="lg"
-            className="border-white/20 text-white hover:bg-white/10 hover:text-white font-medium tracking-wide px-8 h-12 text-base transition-all duration-300"
-          >
-            Explore Designs
           </Button>
         </motion.div>
 

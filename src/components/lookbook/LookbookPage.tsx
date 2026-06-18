@@ -508,7 +508,7 @@ export function LookbookPage() {
                 <Button
                   onClick={() => {
                     setModalOpen(false)
-                    navigate('slot-booking')
+                    navigate('calculator')
                   }}
                   className="w-full sm:w-auto bg-gold text-gold-foreground hover:bg-gold/90 font-semibold"
                 >

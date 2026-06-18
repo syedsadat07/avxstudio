@@ -594,7 +594,7 @@ export function PackagesPage() {
 
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
             <Button
-              onClick={() => navigate('slot-booking')}
+              onClick={() => navigate('calculator')}
               size="lg"
               className="bg-gold text-gold-foreground hover:bg-gold/90 font-semibold tracking-wide px-8 h-12 text-base shadow-lg shadow-gold/20 transition-all duration-300 hover:shadow-xl hover:shadow-gold/30"
             >

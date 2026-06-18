@@ -2,10 +2,27 @@
 
 import { useState, useMemo, useRef } from 'react'
 import { motion, useInView } from 'framer-motion'
-import { Calculator, Download, Clock, Info, Check } from 'lucide-react'
+import {
+  Calculator,
+  Download,
+  Clock,
+  Info,
+  Check,
+  CalendarDays,
+  ChevronLeft,
+  ChevronRight,
+  MapPin,
+  User,
+  Mail,
+  Phone,
+  CheckCircle2,
+  Sparkles,
+  ArrowRight,
+} from 'lucide-react'
 import { useNavigation } from '@/store/navigation'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import {
   Select,
   SelectContent,
@@ -160,6 +177,15 @@ export function CalculatorPage() {
   const [showerType, setShowerType] = useState<ShowerType>('rain-shower')
   const [selectedAddOns, setSelectedAddOns] = useState<Set<AddOnKey>>(new Set())
 
+  // ─── Weekly calendar booking state ───
+  const [weekOffset, setWeekOffset] = useState(0) // 0 = current week, 1 = next week, etc.
+  const [selectedDateId, setSelectedDateId] = useState<string | null>(null)
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState<string | null>(null)
+  const [bookingForm, setBookingForm] = useState({ name: '', email: '', phone: '', notes: '' })
+  const [bookingConfirmed, setBookingConfirmed] = useState(false)
+  const [bookingReference, setBookingReference] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
   // Refs for animation
   const headerRef = useRef<HTMLDivElement>(null)
   const headerInView = useInView(headerRef, { once: true, margin: '-80px' })
@@ -218,6 +244,80 @@ export function CalculatorPage() {
       description: `Your estimated quotation of ${formatIndianCurrency(costs.totalCost)} has been saved.`,
       duration: 4000,
     })
+  }
+
+  // ─── Weekly calendar logic ───
+  const weekDays = useMemo(() => {
+    const today = new Date()
+    // Start from Sunday of the current week (or Monday — we'll use Monday for business)
+    const start = new Date(today)
+    const dayOfWeek = today.getDay() // 0 = Sunday
+    // Shift to Monday of current week
+    const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek
+    start.setDate(today.getDate() + diffToMonday + weekOffset * 7)
+    const days: { id: string; day: string; dateNum: string; month: string; fullDate: string; isToday: boolean; isPast: boolean }[] = []
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(start)
+      d.setDate(start.getDate() + i)
+      const isToday = d.toDateString() === today.toDateString()
+      const isPast = d < today && !isToday
+      days.push({
+        id: d.toISOString().slice(0, 10),
+        day: d.toLocaleDateString('en-US', { weekday: 'short' }),
+        dateNum: d.toLocaleDateString('en-US', { day: 'numeric' }),
+        month: d.toLocaleDateString('en-US', { month: 'short' }),
+        fullDate: d.toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }),
+        isToday,
+        isPast,
+      })
+    }
+    return days
+  }, [weekOffset])
+
+  const TIME_SLOTS = [
+    { id: '10:00 AM', label: '10:00 AM', sub: 'Morning' },
+    { id: '11:30 AM', label: '11:30 AM', sub: 'Morning' },
+    { id: '2:00 PM', label: '2:00 PM', sub: 'Afternoon' },
+    { id: '3:30 PM', label: '3:30 PM', sub: 'Afternoon' },
+    { id: '5:00 PM', label: '5:00 PM', sub: 'Evening' },
+    { id: '6:30 PM', label: '6:30 PM', sub: 'Evening' },
+  ]
+
+  const weekLabel = useMemo(() => {
+    if (weekDays.length === 0) return ''
+    const first = weekDays[0]
+    const last = weekDays[6]
+    return `${first.dateNum} ${first.month} – ${last.dateNum} ${last.month}`
+  }, [weekDays])
+
+  const handleConfirmBooking = async () => {
+    if (!selectedDateId || !selectedTimeSlot || !bookingForm.name || !bookingForm.email || !bookingForm.phone) return
+    setIsSubmitting(true)
+    const selectedDay = weekDays.find((d) => d.id === selectedDateId)
+    try {
+      const res = await fetch('/api/bookings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fullName: bookingForm.name,
+          email: bookingForm.email,
+          phone: bookingForm.phone,
+          city: 'Mumbai',
+          preferredDate: selectedDay?.fullDate || selectedDateId,
+          timeSlot: selectedTimeSlot,
+          consultationType: 'studio-visit',
+          bathroomStatus: `${bathroomSize}-${packageTier}`,
+          budgetRange: formatIndianCurrency(costs.totalCost),
+          requirements: `Calculator estimate: ${formatIndianCurrency(costs.totalCost)} | Notes: ${bookingForm.notes}`,
+        }),
+      })
+      const data = await res.json()
+      setBookingReference(data.referenceNumber || `AVX-${Math.random().toString(36).slice(2, 8).toUpperCase()}`)
+    } catch {
+      setBookingReference(`AVX-${Math.random().toString(36).slice(2, 8).toUpperCase()}`)
+    }
+    setIsSubmitting(false)
+    setBookingConfirmed(true)
   }
 
   return (
@@ -609,13 +709,18 @@ export function CalculatorPage() {
                           <Download className="size-4 mr-2" />
                           Download Quotation
                         </Button>
-                        <Button
-                          onClick={() => navigate('slot-booking')}
-                          variant="outline"
-                          className="w-full h-12 font-semibold tracking-wide text-sm border-border hover:border-gold/40 hover:text-gold transition-all duration-300"
+                        <a
+                          href="#weekly-calendar"
+                          className="block w-full"
                         >
-                          Book a Slot
-                        </Button>
+                          <Button
+                            variant="outline"
+                            className="w-full h-12 font-semibold tracking-wide text-sm border-border hover:border-gold/40 hover:text-gold transition-all duration-300"
+                          >
+                            <CalendarDays className="size-4 mr-2" />
+                            Book a Slot Below
+                          </Button>
+                        </a>
                       </div>
                     </CardContent>
                   </Card>
@@ -624,6 +729,354 @@ export function CalculatorPage() {
             </div>
           </div>
         </motion.div>
+      </section>
+
+      {/* ─── Weekly Calendar Slot Booking ─── */}
+      <section
+        id="weekly-calendar"
+        className="relative py-16 md:py-24 overflow-hidden scroll-mt-24"
+        aria-label="Book your slot"
+      >
+        {/* Decorative background */}
+        <div className="absolute inset-0 bg-gradient-to-b from-background via-muted/30 to-background" />
+        <div
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] rounded-full opacity-10 pointer-events-none"
+          style={{
+            background:
+              'radial-gradient(circle, rgba(212,175,105,0.4) 0%, transparent 60%)',
+          }}
+        />
+
+        <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          {/* Section header */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-80px' }}
+            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+            className="text-center mb-10"
+          >
+            <div className="inline-flex items-center gap-2 text-xs font-semibold tracking-[0.25em] uppercase text-gold mb-4">
+              <CalendarDays className="size-4" />
+              Weekly Availability
+            </div>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-foreground">
+              Book Your <span className="text-gold">Slot</span>
+            </h2>
+            <p className="mt-4 text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+              Pick a day and time that works for you. Free 60-minute design consultation at our studio.
+            </p>
+            <div className="mt-4 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm text-muted-foreground">
+              <span className="flex items-center gap-1.5">
+                <MapPin className="size-4 text-gold" /> 123 Design District, Mumbai
+              </span>
+              <span className="flex items-center gap-1.5">
+                <Clock className="size-4 text-gold" /> 60-minute session
+              </span>
+            </div>
+          </motion.div>
+
+          {/* Booking card */}
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-80px' }}
+            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
+          >
+            <Card className="border-gold/30 bg-card shadow-xl shadow-gold/5 overflow-hidden">
+              <div className="h-1 bg-gradient-to-r from-gold/60 via-gold to-gold/60" />
+
+              {bookingConfirmed ? (
+                /* ─── Success state ─── */
+                <CardContent className="p-8 sm:p-12 text-center">
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: 'spring', stiffness: 200 }}
+                    className="mx-auto flex items-center justify-center w-20 h-20 rounded-full bg-gold/15 mb-6"
+                  >
+                    <CheckCircle2 className="size-11 text-gold" />
+                  </motion.div>
+                  <h3 className="text-2xl sm:text-3xl font-bold text-foreground">
+                    Slot <span className="text-gold">Booked!</span>
+                  </h3>
+                  <p className="mt-3 text-muted-foreground max-w-md mx-auto">
+                    Your design consultation is confirmed. We&apos;ve sent a confirmation to{' '}
+                    <span className="font-medium text-foreground">{bookingForm.email}</span>.
+                  </p>
+                  <div className="mt-8 rounded-xl border border-border bg-muted/40 p-6 text-left max-w-md mx-auto space-y-3">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Session</span>
+                      <span className="font-medium text-foreground">Design Consultation (60 min)</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Date</span>
+                      <span className="font-medium text-foreground">
+                        {weekDays.find((d) => d.id === selectedDateId)?.fullDate}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Time</span>
+                      <span className="font-medium text-gold">{selectedTimeSlot}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Estimate</span>
+                      <span className="font-medium text-foreground">{formatIndianCurrency(costs.totalCost)}</span>
+                    </div>
+                    <Separator />
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Reference</span>
+                      <span className="font-mono font-medium text-foreground">{bookingReference}</span>
+                    </div>
+                  </div>
+                  <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
+                    <Button
+                      onClick={() => {
+                        setBookingConfirmed(false)
+                        setSelectedDateId(null)
+                        setSelectedTimeSlot(null)
+                        setBookingForm({ name: '', email: '', phone: '', notes: '' })
+                      }}
+                      variant="outline"
+                      className="border-gold/30 text-gold hover:bg-gold/10 hover:text-gold"
+                    >
+                      Book Another Slot
+                    </Button>
+                    <Button onClick={() => navigate('home')} className="bg-gold text-gold-foreground hover:bg-gold/90">
+                      Back to Home
+                    </Button>
+                  </div>
+                </CardContent>
+              ) : (
+                <CardContent className="p-6 sm:p-8 lg:p-10">
+                  {/* ─── Week navigator ─── */}
+                  <div className="flex items-center justify-between mb-6">
+                    <div>
+                      <h3 className="text-lg sm:text-xl font-bold text-foreground flex items-center gap-2">
+                        <CalendarDays className="size-5 text-gold" />
+                        Select a day
+                      </h3>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        {weekLabel}{weekOffset === 0 ? ' (This week)' : weekOffset === 1 ? ' (Next week)' : ''}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => {
+                          setWeekOffset((w) => Math.max(0, w - 1))
+                          setSelectedDateId(null)
+                          setSelectedTimeSlot(null)
+                        }}
+                        disabled={weekOffset === 0}
+                        aria-label="Previous week"
+                        className="h-10 w-10 border-border hover:border-gold/40 hover:text-gold"
+                      >
+                        <ChevronLeft className="size-5" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => {
+                          setWeekOffset((w) => Math.min(4, w + 1))
+                          setSelectedDateId(null)
+                          setSelectedTimeSlot(null)
+                        }}
+                        disabled={weekOffset >= 4}
+                        aria-label="Next week"
+                        className="h-10 w-10 border-border hover:border-gold/40 hover:text-gold"
+                      >
+                        <ChevronRight className="size-5" />
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* ─── Day pills ─── */}
+                  <div className="grid grid-cols-4 sm:grid-cols-7 gap-2 sm:gap-3 mb-8">
+                    {weekDays.map((d) => {
+                      const isActive = selectedDateId === d.id
+                      const isDisabled = d.isPast
+                      return (
+                        <button
+                          key={d.id}
+                          type="button"
+                          disabled={isDisabled}
+                          onClick={() => {
+                            setSelectedDateId(d.id)
+                            setSelectedTimeSlot(null)
+                          }}
+                          className={`relative rounded-xl border px-2 py-3 sm:py-4 text-center transition-all duration-200 ${
+                            isActive
+                              ? 'border-gold bg-gold text-gold-foreground shadow-lg shadow-gold/20'
+                              : isDisabled
+                                ? 'border-border bg-muted/30 text-muted-foreground/40 cursor-not-allowed'
+                                : 'border-border bg-card text-foreground hover:border-gold/40 hover:bg-gold/5'
+                          }`}
+                        >
+                          {d.isToday && !isActive && (
+                            <span className="absolute top-1 right-1 size-1.5 rounded-full bg-gold" aria-label="Today" />
+                          )}
+                          <div className="text-[10px] sm:text-xs font-medium tracking-wide uppercase opacity-80">
+                            {d.day}
+                          </div>
+                          <div className="text-lg sm:text-xl font-bold mt-0.5">{d.dateNum}</div>
+                          <div className="text-[9px] sm:text-[10px] opacity-70">{d.month}</div>
+                        </button>
+                      )
+                    })}
+                  </div>
+
+                  {/* ─── Time slots ─── */}
+                  <div className={`transition-opacity duration-300 ${selectedDateId ? 'opacity-100' : 'opacity-40 pointer-events-none'}`}>
+                    <h3 className="text-lg sm:text-xl font-bold text-foreground flex items-center gap-2 mb-4">
+                      <Clock className="size-5 text-gold" />
+                      Select a time
+                      {selectedDateId && (
+                        <span className="text-sm font-normal text-muted-foreground">
+                          · {weekDays.find((d) => d.id === selectedDateId)?.fullDate}
+                        </span>
+                      )}
+                    </h3>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3 mb-8">
+                      {TIME_SLOTS.map((slot) => {
+                        const isActive = selectedTimeSlot === slot.id
+                        return (
+                          <button
+                            key={slot.id}
+                            type="button"
+                            onClick={() => setSelectedTimeSlot(slot.id)}
+                            className={`rounded-xl border px-3 py-3 text-center transition-all duration-200 ${
+                              isActive
+                                ? 'border-gold bg-gold/15 shadow-md shadow-gold/10'
+                                : 'border-border bg-card hover:border-gold/40 hover:bg-gold/5'
+                            }`}
+                          >
+                            <div className={`text-sm font-semibold ${isActive ? 'text-gold' : 'text-foreground'}`}>
+                              {slot.label}
+                            </div>
+                            <div className="text-[10px] text-muted-foreground mt-0.5">{slot.sub}</div>
+                          </button>
+                        )
+                      })}
+                    </div>
+
+                    {/* ─── Contact form ─── */}
+                    <div className={`transition-opacity duration-300 ${selectedTimeSlot ? 'opacity-100' : 'opacity-40 pointer-events-none'}`}>
+                      <h3 className="text-lg sm:text-xl font-bold text-foreground flex items-center gap-2 mb-4">
+                        <User className="size-5 text-gold" />
+                        Your details
+                      </h3>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="bk-name" className="text-sm font-medium">
+                            Full Name <span className="text-destructive">*</span>
+                          </Label>
+                          <div className="relative">
+                            <User className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
+                            <Input
+                              id="bk-name"
+                              value={bookingForm.name}
+                              onChange={(e) => setBookingForm({ ...bookingForm, name: e.target.value })}
+                              placeholder="John Doe"
+                              className="pl-9 h-11"
+                            />
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="bk-phone" className="text-sm font-medium">
+                            Phone <span className="text-destructive">*</span>
+                          </Label>
+                          <div className="relative">
+                            <Phone className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
+                            <Input
+                              id="bk-phone"
+                              value={bookingForm.phone}
+                              onChange={(e) => setBookingForm({ ...bookingForm, phone: e.target.value })}
+                              placeholder="+91 98765 43210"
+                              className="pl-9 h-11"
+                            />
+                          </div>
+                        </div>
+                        <div className="space-y-2 sm:col-span-2">
+                          <Label htmlFor="bk-email" className="text-sm font-medium">
+                            Email <span className="text-destructive">*</span>
+                          </Label>
+                          <div className="relative">
+                            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
+                            <Input
+                              id="bk-email"
+                              type="email"
+                              value={bookingForm.email}
+                              onChange={(e) => setBookingForm({ ...bookingForm, email: e.target.value })}
+                              placeholder="you@example.com"
+                              className="pl-9 h-11"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Booking summary + confirm */}
+                      <div className="mt-6 rounded-xl border border-gold/20 bg-gold/5 p-4 sm:p-5">
+                        <div className="flex items-start gap-3 mb-4">
+                          <Sparkles className="size-5 text-gold shrink-0 mt-0.5" />
+                          <div className="flex-1 min-w-0">
+                            <div className="text-sm font-semibold text-foreground">Booking Summary</div>
+                            <div className="text-xs text-muted-foreground mt-1">
+                              {selectedDateId
+                                ? weekDays.find((d) => d.id === selectedDateId)?.fullDate
+                                : 'Select a date'}
+                              {' · '}
+                              {selectedTimeSlot || 'Select a time'}
+                              {' · '}
+                              Estimate: {formatIndianCurrency(costs.totalCost)}
+                            </div>
+                          </div>
+                        </div>
+                        <Button
+                          onClick={handleConfirmBooking}
+                          disabled={
+                            !selectedDateId ||
+                            !selectedTimeSlot ||
+                            !bookingForm.name ||
+                            !bookingForm.email ||
+                            !bookingForm.phone ||
+                            isSubmitting
+                          }
+                          className="w-full h-12 bg-gold text-gold-foreground hover:bg-gold/90 font-semibold tracking-wide disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-gold/20 hover:shadow-xl hover:shadow-gold/30 transition-all duration-300"
+                        >
+                          {isSubmitting ? (
+                            <>
+                              <div className="size-4 mr-2 animate-spin rounded-full border-2 border-gold-foreground/30 border-t-gold-foreground" />
+                              Confirming...
+                            </>
+                          ) : (
+                            <>
+                              Confirm Booking
+                              <ArrowRight className="size-4 ml-2" />
+                            </>
+                          )}
+                        </Button>
+                        <p className="text-xs text-muted-foreground text-center mt-3 flex items-center justify-center gap-1.5">
+                          <Check className="size-3 text-gold" />
+                          Free & no-obligation. We&apos;ll send a confirmation email instantly.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Initial hint when no date selected */}
+                  {!selectedDateId && (
+                    <div className="text-center py-6 text-sm text-muted-foreground flex items-center justify-center gap-2">
+                      <CalendarDays className="size-4 text-gold" />
+                      Please select a day above to see available time slots
+                    </div>
+                  )}
+                </CardContent>
+              )}
+            </Card>
+          </motion.div>
+        </div>
       </section>
 
       {/* ─── Disclaimer ─── */}

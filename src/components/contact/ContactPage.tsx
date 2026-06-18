@@ -515,7 +515,7 @@ export function ContactPage() {
                       Reserve a slot with our design experts today.
                     </p>
                     <Button
-                      onClick={() => navigate('slot-booking')}
+                      onClick={() => navigate('calculator')}
                       variant="outline"
                       className="border-gold/30 text-gold hover:bg-gold/10 hover:text-gold hover:border-gold/50 font-medium transition-all duration-300"
                     >

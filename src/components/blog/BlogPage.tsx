@@ -524,7 +524,7 @@ export function BlogPage() {
                   className="bg-gold text-gold-foreground hover:bg-gold/90 font-semibold tracking-wide gap-2 w-full sm:w-auto"
                   onClick={() => {
                     setDialogOpen(false)
-                    navigate('slot-booking')
+                    navigate('calculator')
                   }}
                 >
                   Book a Slot

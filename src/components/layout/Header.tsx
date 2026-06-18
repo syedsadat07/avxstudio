@@ -119,7 +119,7 @@ export function Header() {
 
             {/* CTA Button - desktop */}
             <Button
-              onClick={() => handleNavigate('slot-booking')}
+              onClick={() => handleNavigate('calculator')}
               className="hidden lg:inline-flex bg-gold text-gold-foreground hover:bg-gold/90 font-semibold tracking-wide px-6 shadow-sm transition-all duration-300 hover:shadow-md"
             >
               Book a Slot
@@ -187,7 +187,7 @@ export function Header() {
           {/* Mobile CTA */}
           <div className="mt-auto p-6 border-t border-border/50">
             <Button
-              onClick={() => handleNavigate('slot-booking')}
+              onClick={() => handleNavigate('calculator')}
               className="w-full bg-gold text-gold-foreground hover:bg-gold/90 font-semibold tracking-wide h-12 text-[15px] shadow-sm transition-all duration-300 hover:shadow-md"
             >
               <Phone className="size-4 mr-2" />
