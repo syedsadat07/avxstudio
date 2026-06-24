@@ -117,43 +117,59 @@ export function PackagesPreview() {
           animate={isInView ? 'visible' : 'hidden'}
         >
           {packages.map((pkg) => (
-            <motion.div key={pkg.name} variants={cardVariants}>
+            <motion.div
+              key={pkg.name}
+              variants={cardVariants}
+              whileHover={{ y: -10 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+              className={pkg.highlighted ? 'md:-mt-4' : ''}
+            >
               <Card
-                className={`relative h-full transition-all duration-500 hover:-translate-y-1 ${
+                className={`group relative h-full transition-all duration-500 overflow-hidden ${
                   pkg.highlighted
-                    ? 'border-gold/50 bg-card shadow-xl shadow-gold/10 scale-[1.02] md:scale-105'
-                    : 'border-border/50 bg-card hover:shadow-lg'
+                    ? 'border-gold/50 bg-card shadow-xl shadow-gold/15 md:scale-105'
+                    : 'border-border/50 bg-card hover:shadow-xl hover:shadow-gold/5 hover:border-gold/30'
                 }`}
               >
+                {/* Gold gradient top bar */}
+                <div className={`h-1 ${pkg.highlighted ? 'bg-gradient-to-r from-gold via-yellow-400 to-gold' : 'bg-gradient-to-r from-transparent via-gold/40 to-transparent group-hover:via-gold transition-all duration-500'}`} />
+
                 {/* Most Popular Badge */}
                 {pkg.badge && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                    <Badge className="bg-gold text-gold-foreground font-semibold px-4 py-1 text-xs tracking-wide shadow-md shadow-gold/20">
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
+                    <Badge className="bg-gold text-gold-foreground font-semibold px-4 py-1 text-xs tracking-wide shadow-md shadow-gold/30">
                       {pkg.badge}
                     </Badge>
                   </div>
                 )}
 
-                <CardHeader className="pt-8 pb-2 text-center">
+                {/* Subtle radial glow on highlighted card */}
+                {pkg.highlighted && (
+                  <div className="absolute inset-0 opacity-30 pointer-events-none" style={{ background: 'radial-gradient(circle at 50% 0%, rgba(212,175,105,0.15) 0%, transparent 60%)' }} />
+                )}
+
+                <CardHeader className="pt-8 pb-2 text-center relative">
                   <span className="text-xs font-medium tracking-[0.15em] uppercase text-muted-foreground">
                     {pkg.tier}
                   </span>
-                  <h3 className="text-2xl font-bold text-foreground mt-1">
+                  <h3 className="text-2xl font-bold text-foreground mt-1 transition-colors duration-300 group-hover:text-gold">
                     {pkg.name}
                   </h3>
                   <div className="mt-3">
-                    <span className="text-4xl font-bold text-gold">
+                    <span className="text-4xl font-bold text-gradient-gold">
                       {pkg.price}
                     </span>
                   </div>
                 </CardHeader>
 
-                <CardContent className="pt-2">
+                <CardContent className="pt-2 relative">
                   <ul className="space-y-3">
                     {pkg.features.map((feature) => (
-                      <li key={feature} className="flex items-start gap-3">
-                        <Check className="size-4 text-gold mt-0.5 shrink-0" />
-                        <span className="text-sm text-muted-foreground">
+                      <li key={feature} className="flex items-start gap-3 group/item">
+                        <span className="flex items-center justify-center w-5 h-5 rounded-full bg-gold/10 shrink-0 mt-0.5">
+                          <Check className="size-3 text-gold" />
+                        </span>
+                        <span className="text-sm text-muted-foreground group-hover/item:text-foreground transition-colors duration-300">
                           {feature}
                         </span>
                       </li>
@@ -161,13 +177,13 @@ export function PackagesPreview() {
                   </ul>
                 </CardContent>
 
-                <CardFooter className="pt-2 pb-8">
+                <CardFooter className="pt-2 pb-8 relative">
                   <Button
                     onClick={() => navigate('calculator')}
                     variant={pkg.highlighted ? 'default' : 'outline'}
-                    className={`w-full font-semibold tracking-wide transition-all duration-300 ${
+                    className={`w-full font-semibold tracking-wide transition-all duration-300 shine-on-hover ${
                       pkg.highlighted
-                        ? 'bg-gold text-gold-foreground hover:bg-gold/90 shadow-md shadow-gold/20'
+                        ? 'bg-gold text-gold-foreground hover:bg-gold/90 shadow-md shadow-gold/20 hover:shadow-lg hover:shadow-gold/30'
                         : 'border-border hover:border-gold/40 hover:text-gold'
                     }`}
                   >

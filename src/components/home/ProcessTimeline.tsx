@@ -111,16 +111,16 @@ export function ProcessTimeline() {
           animate={isInView ? 'visible' : 'hidden'}
         >
           {/* Connecting dotted line */}
-          <div className="absolute top-10 left-[8%] right-[8%] h-[2px] border-t-2 border-dashed border-gold/30" />
+          <div className="absolute top-10 left-[5%] right-[5%] h-[2px] border-t-2 border-dashed border-gold/30" />
 
-          {steps.map((step, index) => (
+          {steps.map((step) => (
             <motion.div
               key={step.title}
               variants={stepVariants}
               className="relative flex flex-col items-center text-center w-[140px] xl:w-[160px]"
             >
               {/* Step circle with icon */}
-              <div className="relative z-10 flex items-center justify-center w-20 h-20 rounded-full bg-gold text-gold-foreground shadow-lg shadow-gold/20 mb-4">
+              <div className="relative z-10 flex items-center justify-center w-20 h-20 rounded-full bg-gold text-gold-foreground shadow-lg shadow-gold/20 mb-4 transition-transform duration-300 hover:scale-110">
                 <step.icon className="size-7" />
                 {/* Step number badge */}
                 <span className="absolute -top-1 -right-1 flex items-center justify-center w-6 h-6 rounded-full bg-primary text-white text-xs font-bold border-2 border-gold">
@@ -134,11 +134,6 @@ export function ProcessTimeline() {
               <p className="text-xs text-muted-foreground leading-relaxed max-w-[140px]">
                 {step.description}
               </p>
-
-              {/* Arrow between steps (except last) */}
-              {index < steps.length - 1 && (
-                <div className="hidden" />
-              )}
             </motion.div>
           ))}
         </motion.div>

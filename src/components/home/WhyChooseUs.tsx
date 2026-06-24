@@ -2,7 +2,7 @@
 
 import { useRef } from 'react'
 import { motion, useInView } from 'framer-motion'
-import { Shield, Award, Palette, Gem, Wrench } from 'lucide-react'
+import { Shield, Award, Palette, Gem, Wrench, Clock } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 
 const features = [
@@ -35,6 +35,12 @@ const features = [
     title: 'End-to-End Service',
     description:
       'From design to delivery, we handle everything for you',
+  },
+  {
+    icon: Clock,
+    title: 'On-Time Delivery',
+    description:
+      'Guaranteed project completion within the committed timeline',
   },
 ]
 
@@ -98,20 +104,30 @@ export function WhyChooseUs() {
           initial="hidden"
           animate={isInView ? 'visible' : 'hidden'}
         >
-          {features.map((feature) => (
-            <motion.div key={feature.title} variants={cardVariants}>
-              <Card className="group h-full border-border/50 bg-card hover:border-gold/30 transition-all duration-500 hover:-translate-y-1 hover:shadow-lg hover:shadow-gold/5">
+          {features.map((feature, idx) => (
+            <motion.div key={feature.title} variants={cardVariants} whileHover={{ y: -8 }} transition={{ type: 'spring', stiffness: 300, damping: 20 }}>
+              <Card className="group relative h-full border-border/50 bg-card hover:border-gold/40 transition-all duration-500 hover:shadow-xl hover:shadow-gold/10 overflow-hidden">
+                {/* Gold gradient top accent on hover */}
+                <span className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-gold to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 <CardContent className="pt-8 pb-6 px-6 flex flex-col items-center text-center">
-                  {/* Icon in gold circle */}
-                  <div className="flex items-center justify-center w-14 h-14 rounded-full bg-gold/10 text-gold mb-5 group-hover:bg-gold/20 transition-colors duration-300">
+                  {/* Icon in gold circle with glow + rotation on hover */}
+                  <motion.div
+                    whileHover={{ rotate: 10, scale: 1.1 }}
+                    transition={{ type: 'spring', stiffness: 300, damping: 15 }}
+                    className="flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-br from-gold/15 to-gold/5 text-gold mb-5 group-hover:from-gold/25 group-hover:to-gold/10 group-hover:shadow-[0_0_25px_rgba(212,175,105,0.3)] transition-all duration-500 ring-1 ring-gold/20"
+                  >
                     <feature.icon className="size-6" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-foreground mb-2">
+                  </motion.div>
+                  <h3 className="text-lg font-semibold text-foreground mb-2 transition-colors duration-300 group-hover:text-gold">
                     {feature.title}
                   </h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">
                     {feature.description}
                   </p>
+                  {/* Number badge */}
+                  <span className="absolute top-4 right-4 text-5xl font-bold text-gold/5 group-hover:text-gold/10 transition-colors duration-500">
+                    0{idx + 1}
+                  </span>
                 </CardContent>
               </Card>
             </motion.div>

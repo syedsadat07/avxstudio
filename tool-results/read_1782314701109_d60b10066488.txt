@@ -1,0 +1,541 @@
+     1→'use client'
+     2→
+     3→import { useState } from 'react'
+     4→import { motion, AnimatePresence } from 'framer-motion'
+     5→import { Clock, User, ArrowRight, BookOpen, Mail } from 'lucide-react'
+     6→import { useNavigation } from '@/store/navigation'
+     7→import { useToast } from '@/hooks/use-toast'
+     8→import { Button } from '@/components/ui/button'
+     9→import { Card, CardContent } from '@/components/ui/card'
+    10→import { Badge } from '@/components/ui/badge'
+    11→import { Input } from '@/components/ui/input'
+    12→import {
+    13→  Dialog,
+    14→  DialogContent,
+    15→  DialogHeader,
+    16→  DialogTitle,
+    17→  DialogDescription,
+    18→} from '@/components/ui/dialog'
+    19→
+    20→// ─── Types ──────────────────────────────────────────────────────────────────
+    21→
+    22→interface BlogPost {
+    23→  id: number
+    24→  title: string
+    25→  excerpt: string
+    26→  category: string
+    27→  author: string
+    28→  date: string
+    29→  readTime: string
+    30→  gradient: string
+    31→  fullContent: string[]
+    32→}
+    33→
+    34→// ─── Constants ──────────────────────────────────────────────────────────────
+    35→
+    36→const CATEGORIES = [
+    37→  'All',
+    38→  'Bathroom Ideas',
+    39→  'Renovation Tips',
+    40→  'Small Bathroom Hacks',
+    41→  'Luxury Inspiration',
+    42→  'Waterproofing Guides',
+    43→] as const
+    44→
+    45→type Category = (typeof CATEGORIES)[number]
+    46→
+    47→const BLOG_POSTS: BlogPost[] = [
+    48→  {
+    49→    id: 0,
+    50→    title: '10 Modern Bathroom Trends That Will Dominate 2025',
+    51→    excerpt:
+    52→      'From smart fixtures to sustainable materials, discover the bathroom design trends that are reshaping homes across India.',
+    53→    category: 'Bathroom Ideas',
+    54→    author: 'Priya Mehta',
+    55→    date: 'Feb 28, 2025',
+    56→    readTime: '9 min read',
+    57→    gradient: 'from-amber-100 via-yellow-50 to-orange-50',
+    58→    fullContent: [
+    59→      'The bathroom of 2025 is no longer just a functional space — it has evolved into a personal sanctuary that blends technology, sustainability, and bold aesthetics. Smart fixtures with motion sensors and voice-controlled temperature settings are becoming standard in premium Indian homes, offering both convenience and water conservation. Touchless faucets, self-cleaning toilets, and LED mirrors with built-in weather displays are leading the charge in this transformation.',
+    60→      'Sustainable materials are taking center stage as homeowners become more environmentally conscious. Recycled glass countertops, bamboo vanities, and low-flow shower systems that don\'t compromise on pressure are now must-haves. Designers are also embracing natural stone in its raw, unpolished form, bringing an organic warmth that contrasts beautifully with sleek modern fixtures. The combination creates a spa-like atmosphere right at home.',
+    61→      'Color palettes are shifting from the all-white minimalism of previous years toward warmer, earthier tones. Terracotta, sage green, and warm beige are dominating tile selections, while matte black fixtures provide striking contrast. Statement walls with bold patterned tiles, especially Moroccan and Japanese-inspired designs, are being used to create focal points that turn an ordinary bathroom into an extraordinary retreat.',
+    62→    ],
+    63→  },
+    64→  {
+    65→    id: 1,
+    66→    title: 'Complete Guide to Bathroom Waterproofing',
+    67→    excerpt:
+    68→      'Protect your investment with proper waterproofing techniques. Learn the essentials for a leak-free bathroom.',
+    69→    category: 'Renovation Tips',
+    70→    author: 'Rajiv Kapoor',
+    71→    date: 'Feb 20, 2025',
+    72→    readTime: '8 min read',
+    73→    gradient: 'from-stone-200 via-amber-50 to-yellow-50',
+    74→    fullContent: [
+    75→      'Waterproofing is the single most critical step in bathroom construction or renovation, yet it remains the most overlooked. A poorly waterproofed bathroom can lead to structural damage, mold growth, and costly repairs that far exceed the initial investment in proper waterproofing. In India\'s humid climate, this becomes even more crucial as moisture penetration can affect not just your bathroom but adjacent rooms and even the floors below.',
+    76→      'The process begins with surface preparation — ensuring the substrate is clean, level, and free of cracks. A primer is then applied to improve adhesion, followed by a membrane system that typically includes a cementitious or polymer-based coating. Critical areas like shower zones, bathtub perimeters, and pipe penetrations require extra attention with reinforced waterproofing membranes. The shower area should have waterproofing extending at least 1800mm up the walls.',
+    77→      'Modern liquid-applied membranes offer superior coverage compared to traditional sheet membranes, as they form a seamless barrier without joints or seams where water can infiltrate. After application, a flood test of 48-72 hours is essential to verify the integrity of the waterproofing layer before tiling begins. Always insist on a warranty from your contractor — a minimum 10-year warranty on waterproofing is the industry standard for quality work.',
+    78→    ],
+    79→  },
+    80→  {
+    81→    id: 2,
+    82→    title: '5 Space-Saving Ideas for Small Bathrooms',
+    83→    excerpt:
+    84→      'Maximize every inch with clever storage solutions and smart layouts designed for compact Indian bathrooms.',
+    85→    category: 'Small Bathroom Hacks',
+    86→    author: 'Ananya Singh',
+    87→    date: 'Feb 14, 2025',
+    88→    readTime: '5 min read',
+    89→    gradient: 'from-orange-100 via-amber-50 to-yellow-100',
+    90→    fullContent: [
+    91→      'Small bathrooms are a reality in most Indian apartments, but compact doesn\'t have to mean cramped. The key lies in strategic planning and choosing fixtures that serve multiple purposes. Wall-mounted toilets and floating vanities create the illusion of more floor space by revealing the area beneath them, making the room feel significantly larger than its actual dimensions.',
+    92→      'Vertical storage is your best friend in a compact bathroom. Floor-to-ceiling cabinets that blend seamlessly with the wall color create ample storage without eating into the visual space. Recessed niches in shower areas replace bulky shelving units, while over-toilet storage racks turn dead space into functional storage. Mirror cabinets with internal shelving provide both a grooming mirror and hidden storage for toiletries.',
+    93→      'Strategic use of materials and lighting can dramatically alter the perception of space. Large-format tiles with minimal grout lines create a seamless look that makes walls appear larger. A frameless glass shower partition replaces opaque barriers, allowing light to flow freely. Under-cabinet LED strips and backlit mirrors eliminate shadows and create an airy, open atmosphere that transforms even the smallest bathroom into a welcoming retreat.',
+    94→    ],
+    95→  },
+    96→  {
+    97→    id: 3,
+    98→    title: 'Creating a Spa-Like Experience at Home',
+    99→    excerpt:
+   100→      'Transform your daily routine with luxury touches inspired by world-class spas and wellness retreats.',
+   101→    category: 'Luxury Inspiration',
+   102→    author: 'Vikram Chauhan',
+   103→    date: 'Feb 7, 2025',
+   104→    readTime: '6 min read',
+   105→    gradient: 'from-yellow-100 via-amber-50 to-stone-100',
+   106→    fullContent: [
+   107→      'The concept of a spa bathroom goes beyond aesthetics — it\'s about creating a multisensory experience that promotes relaxation and well-being. Start with lighting: install dimmable LED fixtures that allow you to transition from bright, energizing morning light to soft, warm evening ambiance. Candles and salt lamps add natural warmth, while a backlit mirror creates a gentle, flattering glow for grooming routines.',
+   108→      'Water features are the heart of any spa experience. A rainfall showerhead mounted directly overhead simulates the sensation of standing in a warm monsoon, while body jets provide a therapeutic massage. For those with space, a freestanding soaking tub becomes the centerpiece — imagine sinking into warm water surrounded by flickering candles after a long day. Heated towel racks and underfloor heating ensure that comfort extends beyond the water itself.',
+   109→      'The finishing touches make all the difference. Natural materials like teak wood bath mats, river stone shower floors, and bamboo accessories bring the outdoors in. Aromatherapy diffusers with essential oils like eucalyptus and lavender create an immersive sensory experience. Plush Egyptian cotton towels, a built-in sound system with nature sounds, and a small indoor plant complete the transformation from ordinary bathroom to personal wellness retreat.',
+   110→    ],
+   111→  },
+   112→  {
+   113→    id: 4,
+   114→    title: 'Choosing the Right Tiles for Your Bathroom',
+   115→    excerpt:
+   116→      'From ceramic to natural stone, find the perfect tile material for durability and style in Indian conditions.',
+   117→    category: 'Bathroom Ideas',
+   118→    author: 'Neha Agarwal',
+   119→    date: 'Jan 30, 2025',
+   120→    readTime: '7 min read',
+   121→    gradient: 'from-amber-100 via-orange-50 to-yellow-50',
+   122→    fullContent: [
+   123→      'Selecting bathroom tiles involves balancing aesthetics, durability, maintenance, and budget — especially in India where hard water and humidity present unique challenges. Ceramic tiles remain the most popular choice for their affordability, water resistance, and vast design options. Porcelain tiles, while slightly more expensive, offer superior density and water resistance, making them ideal for shower floors and walls.',
+   124→      'Natural stone tiles like marble, granite, and slate bring unmatched elegance but require regular sealing and maintenance. Marble, a favorite in Indian luxury homes, develops a beautiful patina over time but is susceptible to staining from hard water deposits. For a practical yet premium look, consider large-format porcelain tiles that mimic natural stone — you get the visual appeal without the maintenance headaches.',
+   125→      'Tile size and layout significantly impact the perceived space in your bathroom. Large-format tiles (600x600mm or larger) with minimal grout lines create a seamless, expansive look perfect for floors and feature walls. For shower floors, smaller mosaic tiles (25x25mm to 50x50mm) provide necessary slip resistance while adding texture and visual interest. Don\'t forget the anti-skid rating — for Indian bathrooms, an R10 or higher slip rating is recommended for floor tiles.',
+   126→    ],
+   127→  },
+   128→  {
+   129→    id: 5,
+   130→    title: 'How to Budget for Your Bathroom Renovation',
+   131→    excerpt:
+   132→      'A practical guide to understanding costs, prioritizing spends, and avoiding common budgeting pitfalls.',
+   133→    category: 'Renovation Tips',
+   134→    author: 'Arjun Desai',
+   135→    date: 'Jan 22, 2025',
+   136→    readTime: '10 min read',
+   137→    gradient: 'from-stone-100 via-amber-50 to-orange-50',
+   138→    fullContent: [
+   139→      'Budgeting a bathroom renovation in India requires understanding the cost breakdown across different components. As a general rule, allocate roughly 30-35% of your budget to civil work (waterproofing, plumbing, and masonry), 25-30% to tiles and installation, 20-25% to fixtures and fittings, and 15-20% to accessories and finishing touches. Always keep a 10-15% contingency for unexpected issues — older homes often reveal hidden problems once work begins.',
+   140→      'The biggest budget variable is the scope of renovation. A cosmetic refresh (new tiles, paint, and fixtures without changing the layout) can start from ₹50,000 for a small bathroom. A mid-range renovation with layout changes and premium fixtures typically falls between ₹1.5-3 lakhs. A luxury transformation with imported fixtures, custom cabinetry, and high-end materials can exceed ₹5 lakhs. The key is to prioritize spending on elements that are difficult or expensive to change later — waterproofing and plumbing should never be compromised.',
+   141→      'Smart budgeting means knowing where to save and where to splurge. Invest in quality waterproofing, durable tiles, and reliable plumbing fixtures — these are foundational elements that affect longevity. Save on accessories and decorative elements, which can be upgraded later without major disruption. Consider purchasing fixtures during sales, and explore Indian brands like Jaquar and Hindware that offer excellent quality at competitive prices compared to imported alternatives.',
+   142→    ],
+   143→  },
+   144→  {
+   145→    id: 6,
+   146→    title: 'Minimalist Bathroom Design Principles',
+   147→    excerpt:
+   148→      'Embrace the art of less with clean lines, neutral palettes, and purposeful simplicity in bathroom design.',
+   149→    category: 'Bathroom Ideas',
+   150→    author: 'Priya Mehta',
+   151→    date: 'Jan 15, 2025',
+   152→    readTime: '4 min read',
+   153→    gradient: 'from-yellow-50 via-stone-100 to-amber-50',
+   154→    fullContent: [
+   155→      'Minimalist bathroom design is rooted in the principle that every element must serve a purpose. This doesn\'t mean cold or sterile — true minimalism creates a sense of calm by eliminating visual clutter and focusing on quality over quantity. Start with a neutral color palette: whites, grays, and warm beiges form the foundation, with a single accent color or material providing visual interest without overwhelming the senses.',
+   156→      'Concealed storage is essential for maintaining clean surfaces. Built-in cabinets behind mirror fronts, recessed shelving in shower niches, and vanity drawers with organizers ensure that essentials are accessible but not visible. Wall-mounted fixtures — from taps to toilets — eliminate floor-mounting hardware and create floating silhouettes that enhance the sense of space. Choose fewer, higher-quality fixtures rather than multiple mid-range pieces.',
+   157→      'The magic of minimalist design lies in thoughtful details. A single statement piece — perhaps a sculptural freestanding tub, an oversized backlit mirror, or a slab of natural stone as a vanity top — becomes the focal point around which the entire room revolves. Texture replaces ornamentation: matte surfaces, brushed metals, and natural materials provide subtle richness. The result is a bathroom that feels spacious, serene, and effortlessly sophisticated — a true retreat from the chaos of daily life.',
+   158→    ],
+   159→  },
+   160→]
+   161→
+   162→// ─── Animation Variants ─────────────────────────────────────────────────────
+   163→
+   164→const fadeUp = {
+   165→  hidden: { opacity: 0, y: 20 },
+   166→  visible: (i: number) => ({
+   167→    opacity: 1,
+   168→    y: 0,
+   169→    transition: { duration: 0.5, delay: i * 0.08, ease: [0.22, 1, 0.36, 1] },
+   170→  }),
+   171→}
+   172→
+   173→const staggerContainer = {
+   174→  hidden: {},
+   175→  visible: {
+   176→    transition: { staggerChildren: 0.08 },
+   177→  },
+   178→}
+   179→
+   180→// ─── Component ──────────────────────────────────────────────────────────────
+   181→
+   182→export function BlogPage() {
+   183→  const { navigate } = useNavigation()
+   184→  const { toast } = useToast()
+   185→
+   186→  const [activeCategory, setActiveCategory] = useState<Category>('All')
+   187→  const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null)
+   188→  const [dialogOpen, setDialogOpen] = useState(false)
+   189→  const [email, setEmail] = useState('')
+   190→  const [isSubscribing, setIsSubscribing] = useState(false)
+   191→
+   192→  // ── Filter posts ──────────────────────────────────────────────────────
+   193→
+   194→  const featuredPost = BLOG_POSTS[0]
+   195→  const gridPosts = BLOG_POSTS.slice(1)
+   196→
+   197→  const filteredGridPosts =
+   198→    activeCategory === 'All'
+   199→      ? gridPosts
+   200→      : gridPosts.filter((post) => post.category === activeCategory)
+   201→
+   202→  const isFeaturedVisible =
+   203→    activeCategory === 'All' || featuredPost.category === activeCategory
+   204→
+   205→  // ── Handlers ──────────────────────────────────────────────────────────
+   206→
+   207→  const handlePostClick = (post: BlogPost) => {
+   208→    setSelectedPost(post)
+   209→    setDialogOpen(true)
+   210→  }
+   211→
+   212→  const handleSubscribe = () => {
+   213→    if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return
+   214→    setIsSubscribing(true)
+   215→    setTimeout(() => {
+   216→      toast({
+   217→        title: 'Subscribed!',
+   218→        description: 'You\'ll receive bathroom inspiration in your inbox.',
+   219→      })
+   220→      setEmail('')
+   221→      setIsSubscribing(false)
+   222→    }, 600)
+   223→  }
+   224→
+   225→  // ─── Render ───────────────────────────────────────────────────────────
+   226→
+   227→  return (
+   228→    <section className="py-12 md:py-20 bg-background" aria-label="Blog">
+   229→      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+   230→        {/* ── Page Header ──────────────────────────────────────────────── */}
+   231→        <motion.div
+   232→          className="text-center mb-10 md:mb-14"
+   233→          initial={{ opacity: 0, y: 30 }}
+   234→          animate={{ opacity: 1, y: 0 }}
+   235→          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+   236→        >
+   237→          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-foreground">
+   238→            Bathroom Insights <span className="text-gold">&amp; Ideas</span>
+   239→          </h1>
+   240→          <div className="mx-auto mt-5 flex items-center justify-center gap-3">
+   241→            <span className="h-px w-12 bg-gold/40" />
+   242→            <span className="h-2 w-2 rounded-full bg-gold" />
+   243→            <span className="h-px w-12 bg-gold/40" />
+   244→          </div>
+   245→          <p className="mt-5 text-muted-foreground text-lg max-w-2xl mx-auto">
+   246→            Expert tips, design inspiration, and renovation guides
+   247→          </p>
+   248→        </motion.div>
+   249→
+   250→        {/* ── Category Filter ──────────────────────────────────────────── */}
+   251→        <motion.div
+   252→          className="mb-10 md:mb-14 flex flex-wrap items-center justify-center gap-2"
+   253→          initial={{ opacity: 0, y: 20 }}
+   254→          animate={{ opacity: 1, y: 0 }}
+   255→          transition={{ duration: 0.5, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
+   256→        >
+   257→          {CATEGORIES.map((cat) => (
+   258→            <button
+   259→              key={cat}
+   260→              onClick={() => setActiveCategory(cat)}
+   261→              className="focus:outline-none"
+   262→            >
+   263→              <Badge
+   264→                className={`cursor-pointer transition-all duration-200 text-sm px-4 py-1.5 rounded-full border ${
+   265→                  activeCategory === cat
+   266→                    ? 'bg-gold text-gold-foreground border-gold hover:bg-gold/90'
+   267→                    : 'bg-background text-muted-foreground border-border/60 hover:border-gold/40 hover:text-foreground'
+   268→                }`}
+   269→              >
+   270→                {cat}
+   271→              </Badge>
+   272→            </button>
+   273→          ))}
+   274→        </motion.div>
+   275→
+   276→        {/* ── Featured Post ────────────────────────────────────────────── */}
+   277→        <AnimatePresence mode="wait">
+   278→          {isFeaturedVisible && (
+   279→            <motion.div
+   280→              key="featured"
+   281→              initial={{ opacity: 0, y: 20 }}
+   282→              animate={{ opacity: 1, y: 0 }}
+   283→              exit={{ opacity: 0, y: -10 }}
+   284→              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+   285→              className="mb-10 md:mb-14"
+   286→            >
+   287→              <Card
+   288→                className="overflow-hidden border-border/40 cursor-pointer group hover:shadow-lg transition-shadow duration-300"
+   289→                onClick={() => handlePostClick(featuredPost)}
+   290→              >
+   291→                <div className="grid grid-cols-1 md:grid-cols-2">
+   292→                  {/* Gradient visual area */}
+   293→                  <div
+   294→                    className={`bg-gradient-to-br ${featuredPost.gradient} min-h-[220px] md:min-h-[360px] relative flex items-end p-6`}
+   295→                  >
+   296→                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+   297→                    <div className="relative z-10">
+   298→                      <Badge className="bg-gold/90 text-gold-foreground border-0 text-xs font-semibold mb-3">
+   299→                        <BookOpen className="size-3 mr-1" />
+   300→                        {featuredPost.category}
+   301→                      </Badge>
+   302→                    </div>
+   303→                  </div>
+   304→
+   305→                  {/* Content area */}
+   306→                  <CardContent className="p-6 md:p-8 flex flex-col justify-center">
+   307→                    <Badge
+   308→                      variant="outline"
+   309→                      className="w-fit mb-4 text-xs border-gold/30 text-gold"
+   310→                    >
+   311→                      Featured
+   312→                    </Badge>
+   313→                    <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-3 group-hover:text-gold transition-colors duration-200">
+   314→                      {featuredPost.title}
+   315→                    </h2>
+   316→                    <p className="text-muted-foreground leading-relaxed mb-5">
+   317→                      {featuredPost.excerpt}
+   318→                    </p>
+   319→                    <div className="flex items-center gap-4 text-sm text-muted-foreground mb-6">
+   320→                      <span className="flex items-center gap-1.5">
+   321→                        <User className="size-3.5" />
+   322→                        {featuredPost.author}
+   323→                      </span>
+   324→                      <span className="flex items-center gap-1.5">
+   325→                        <Clock className="size-3.5" />
+   326→                        {featuredPost.readTime}
+   327→                      </span>
+   328→                      <span>{featuredPost.date}</span>
+   329→                    </div>
+   330→                    <Button
+   331→                      className="w-fit bg-gold text-gold-foreground hover:bg-gold/90 font-semibold tracking-wide gap-2"
+   332→                      onClick={(e) => {
+   333→                        e.stopPropagation()
+   334→                        handlePostClick(featuredPost)
+   335→                      }}
+   336→                    >
+   337→                      Read More
+   338→                      <ArrowRight className="size-4" />
+   339→                    </Button>
+   340→                  </CardContent>
+   341→                </div>
+   342→              </Card>
+   343→            </motion.div>
+   344→          )}
+   345→        </AnimatePresence>
+   346→
+   347→        {/* ── Blog Grid ────────────────────────────────────────────────── */}
+   348→        <motion.div
+   349→          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-14 md:mb-20"
+   350→          variants={staggerContainer}
+   351→          initial="hidden"
+   352→          animate="visible"
+   353→          key={activeCategory}
+   354→        >
+   355→          {filteredGridPosts.length > 0 ? (
+   356→            filteredGridPosts.map((post, i) => (
+   357→              <motion.div
+   358→                key={post.id}
+   359→                variants={fadeUp}
+   360→                custom={i}
+   361→              >
+   362→                <Card
+   363→                  className="overflow-hidden border-border/40 cursor-pointer group hover:shadow-lg transition-shadow duration-300 h-full flex flex-col"
+   364→                  onClick={() => handlePostClick(post)}
+   365→                >
+   366→                  {/* Gradient visual area */}
+   367→                  <div
+   368→                    className={`bg-gradient-to-br ${post.gradient} h-44 sm:h-52 relative flex items-end p-4`}
+   369→                  >
+   370→                    <div className="absolute inset-0 bg-gradient-to-t from-black/15 to-transparent" />
+   371→                    <Badge className="relative z-10 bg-gold/90 text-gold-foreground border-0 text-xs font-semibold">
+   372→                      <BookOpen className="size-3 mr-1" />
+   373→                      {post.category}
+   374→                    </Badge>
+   375→                  </div>
+   376→
+   377→                  {/* Content */}
+   378→                  <CardContent className="p-5 flex flex-col flex-1">
+   379→                    <h3 className="text-lg font-bold text-foreground mb-2 group-hover:text-gold transition-colors duration-200 line-clamp-2">
+   380→                      {post.title}
+   381→                    </h3>
+   382→                    <p className="text-sm text-muted-foreground leading-relaxed mb-4 line-clamp-2 flex-1">
+   383→                      {post.excerpt}
+   384→                    </p>
+   385→                    <div className="flex items-center justify-between text-xs text-muted-foreground pt-3 border-t border-border/40">
+   386→                      <span className="flex items-center gap-1.5">
+   387→                        <User className="size-3" />
+   388→                        {post.author}
+   389→                      </span>
+   390→                      <span>{post.date}</span>
+   391→                      <span className="flex items-center gap-1">
+   392→                        <Clock className="size-3" />
+   393→                        {post.readTime}
+   394→                      </span>
+   395→                    </div>
+   396→                  </CardContent>
+   397→                </Card>
+   398→              </motion.div>
+   399→            ))
+   400→          ) : (
+   401→            <motion.div
+   402→              className="col-span-full text-center py-16"
+   403→              variants={fadeUp}
+   404→              custom={0}
+   405→            >
+   406→              <BookOpen className="size-12 text-muted-foreground/40 mx-auto mb-4" />
+   407→              <p className="text-muted-foreground text-lg">
+   408→                No posts found in this category
+   409→              </p>
+   410→              <p className="text-muted-foreground/70 text-sm mt-1">
+   411→                Try selecting a different category
+   412→              </p>
+   413→            </motion.div>
+   414→          )}
+   415→        </motion.div>
+   416→
+   417→        {/* ── Newsletter Signup ────────────────────────────────────────── */}
+   418→        <motion.div
+   419→          initial={{ opacity: 0, y: 20 }}
+   420→          animate={{ opacity: 1, y: 0 }}
+   421→          transition={{ duration: 0.5, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+   422→        >
+   423→          <Card className="overflow-hidden border-border/40">
+   424→            <div className="relative bg-gradient-to-r from-amber-50 via-yellow-50 to-orange-50 dark:from-stone-900 dark:via-stone-800 dark:to-stone-900">
+   425→              {/* Gold accent line */}
+   426→              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-gold/60 via-gold to-gold/60" />
+   427→              <CardContent className="p-8 md:p-12 text-center">
+   428→                <Mail className="size-10 text-gold mx-auto mb-4" />
+   429→                <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">
+   430→                  Get Bathroom Inspiration in Your Inbox
+   431→                </h2>
+   432→                <p className="text-muted-foreground mb-8 max-w-lg mx-auto">
+   433→                  Join 2,000+ homeowners who receive our weekly tips, trend
+   434→                  reports, and exclusive renovation offers.
+   435→                </p>
+   436→                <div className="flex flex-col sm:flex-row items-center gap-3 max-w-md mx-auto">
+   437→                  <Input
+   438→                    type="email"
+   439→                    placeholder="your@email.com"
+   440→                    value={email}
+   441→                    onChange={(e) => setEmail(e.target.value)}
+   442→                    onKeyDown={(e) => {
+   443→                      if (e.key === 'Enter') handleSubscribe()
+   444→                    }}
+   445→                    className="flex-1 h-12 bg-background/80 border-border/60"
+   446→                  />
+   447→                  <Button
+   448→                    onClick={handleSubscribe}
+   449→                    disabled={
+   450→                      !email.trim() ||
+   451→                      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ||
+   452→                      isSubscribing
+   453→                    }
+   454→                    className="bg-gold text-gold-foreground hover:bg-gold/90 font-semibold tracking-wide h-12 px-8 w-full sm:w-auto gap-2"
+   455→                  >
+   456→                    {isSubscribing ? (
+   457→                      <motion.div
+   458→                        className="size-4 border-2 border-gold-foreground/30 border-t-gold-foreground rounded-full"
+   459→                        animate={{ rotate: 360 }}
+   460→                        transition={{
+   461→                          duration: 1,
+   462→                          repeat: Infinity,
+   463→                          ease: 'linear',
+   464→                        }}
+   465→                      />
+   466→                    ) : (
+   467→                      <>
+   468→                        Subscribe
+   469→                        <ArrowRight className="size-4" />
+   470→                      </>
+   471→                    )}
+   472→                  </Button>
+   473→                </div>
+   474→                <p className="text-xs text-muted-foreground/60 mt-4">
+   475→                  No spam, ever. Unsubscribe anytime.
+   476→                </p>
+   477→              </CardContent>
+   478→            </div>
+   479→          </Card>
+   480→        </motion.div>
+   481→      </div>
+   482→
+   483→      {/* ── Blog Detail Modal ───────────────────────────────────────────── */}
+   484→      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+   485→        <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto">
+   486→          {selectedPost && (
+   487→            <>
+   488→              {/* Gradient visual area */}
+   489→              <div
+   490→                className={`bg-gradient-to-br ${selectedPost.gradient} -mx-6 -mt-6 h-48 sm:h-56 relative flex items-end p-6 mb-0`}
+   491→              >
+   492→                <div className="absolute inset-0 bg-gradient-to-t from-black/25 to-transparent" />
+   493→                <Badge className="relative z-10 bg-gold/90 text-gold-foreground border-0 text-xs font-semibold">
+   494→                  <BookOpen className="size-3 mr-1" />
+   495→                  {selectedPost.category}
+   496→                </Badge>
+   497→              </div>
+   498→
+   499→              <DialogHeader className="mt-2">
+   500→                <DialogTitle className="text-xl sm:text-2xl font-bold text-foreground leading-tight">
+   501→                  {selectedPost.title}
+   502→                </DialogTitle>
+   503→                <DialogDescription className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+   504→                  <span className="flex items-center gap-1.5">
+   505→                    <User className="size-3.5" />
+   506→                    {selectedPost.author}
+   507→                  </span>
+   508→                  <span className="flex items-center gap-1.5">
+   509→                    <Clock className="size-3.5" />
+   510→                    {selectedPost.readTime}
+   511→                  </span>
+   512→                  <span>{selectedPost.date}</span>
+   513→                </DialogDescription>
+   514→              </DialogHeader>
+   515→
+   516→              <div className="space-y-4 text-foreground/85 leading-relaxed text-sm sm:text-base">
+   517→                {selectedPost.fullContent.map((paragraph, i) => (
+   518→                  <p key={i}>{paragraph}</p>
+   519→                ))}
+   520→              </div>
+   521→
+   522→              <div className="pt-4 border-t border-border/50 mt-4">
+   523→                <Button
+   524→                  className="bg-gold text-gold-foreground hover:bg-gold/90 font-semibold tracking-wide gap-2 w-full sm:w-auto"
+   525→                  onClick={() => {
+   526→                    setDialogOpen(false)
+   527→                    navigate('calculator')
+   528→                  }}
+   529→                >
+   530→                  Book a Slot
+   531→                  <ArrowRight className="size-4" />
+   532→                </Button>
+   533→              </div>
+   534→            </>
+   535→          )}
+   536→        </DialogContent>
+   537→      </Dialog>
+   538→    </section>
+   539→  )
+   540→}
+   541→

@@ -2,6 +2,7 @@
 
 import { Instagram, Facebook, Twitter, Pin, MapPin, Phone, Mail, Clock } from 'lucide-react'
 import { useNavigation, type PageId } from '@/store/navigation'
+import { toast } from '@/hooks/use-toast'
 
 const quickLinks: { id: PageId; label: string }[] = [
   { id: 'home', label: 'Home' },
@@ -159,11 +160,17 @@ export function Footer() {
               © 2025 AURAVIX Bath Studio. All rights reserved.
             </p>
             <div className="flex items-center gap-4">
-              <button className="text-xs text-primary-foreground/40 hover:text-gold transition-colors duration-300 tracking-wide">
+              <button
+                onClick={() => toast({ title: 'Privacy Policy', description: 'This page is being prepared. Please contact us for any questions.' })}
+                className="text-xs text-primary-foreground/40 hover:text-gold transition-colors duration-300 tracking-wide"
+              >
                 Privacy Policy
               </button>
               <span className="text-primary-foreground/20">|</span>
-              <button className="text-xs text-primary-foreground/40 hover:text-gold transition-colors duration-300 tracking-wide">
+              <button
+                onClick={() => toast({ title: 'Terms of Service', description: 'This page is being prepared. Please contact us for any questions.' })}
+                className="text-xs text-primary-foreground/40 hover:text-gold transition-colors duration-300 tracking-wide"
+              >
                 Terms of Service
               </button>
             </div>

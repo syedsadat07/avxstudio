@@ -115,17 +115,24 @@ export function GalleryPreview() {
         >
           {designs.map((design) => (
             <motion.div key={design.name} variants={cardVariants} className="masonry-item">
-              <div className="group relative overflow-hidden rounded-xl cursor-pointer">
+              <div
+                className="group relative overflow-hidden rounded-xl cursor-pointer"
+                role="button"
+                tabIndex={0}
+                onClick={() => navigate('lookbook')}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate('lookbook') } }}
+                aria-label={`View ${design.name} design in lookbook`}
+              >
                 {/* Background - image or gradient */}
                 {design.image ? (
                   <img
                     src={design.image}
                     alt={design.name}
-                    className={`${design.aspectRatio} w-full rounded-xl object-cover`}
+                    className={`${design.aspectRatio} w-full rounded-xl object-cover transition-transform duration-700 group-hover:scale-110`}
                   />
                 ) : (
                   <div
-                    className={`${design.aspectRatio} w-full rounded-xl`}
+                    className={`${design.aspectRatio} w-full rounded-xl transition-transform duration-700 group-hover:scale-110`}
                     style={{ background: design.gradient }}
                   />
                 )}

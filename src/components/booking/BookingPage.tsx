@@ -392,7 +392,7 @@ export function BookingPage() {
   // ── Render: Multi-Step Form ─────────────────────────────────────────────
 
   return (
-    <section className="py-12 md:py-20 bg-background" aria-label="Book Consultation">
+    <section className="py-12 md:py-20 bg-background" aria-label="Book a Slot">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* ── Page Header ─────────────────────────────────────────────────── */}
         <motion.div

@@ -2,6 +2,7 @@
 
 import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
+import { ScrollProgress } from '@/components/layout/ScrollProgress'
 import { HeroSection } from '@/components/home/HeroSection'
 import { WhyChooseUs } from '@/components/home/WhyChooseUs'
 import { PackagesPreview } from '@/components/home/PackagesPreview'
@@ -18,6 +19,7 @@ import { BlogPage } from '@/components/blog/BlogPage'
 import { AboutPage } from '@/components/about/AboutPage'
 import { ContactPage } from '@/components/contact/ContactPage'
 import { useNavigation } from '@/store/navigation'
+import { motion, AnimatePresence } from 'framer-motion'
 
 function HomePage() {
   return (
@@ -61,9 +63,20 @@ export default function Home() {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <ScrollProgress />
       <Header />
       <main className="flex-1">
-        {renderPage()}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentPage}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+          >
+            {renderPage()}
+          </motion.div>
+        </AnimatePresence>
       </main>
       <Footer />
     </div>

@@ -14,12 +14,14 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://auravix.com"),
   title: "AURAVIX - Premium Bathroom Renovation & Interior Design",
-  description: "Transform your bathroom with AURAVIX. Modern designs, expert consultations, transparent pricing, and 10-year warranty. Book your free consultation today.",
+  description: "Transform your bathroom with AURAVIX. Modern designs, expert consultations, transparent pricing, and 10-year warranty. Book a Slot today.",
   keywords: ["bathroom renovation", "modern bathroom designs", "bathroom interior", "luxury bathroom", "AURAVIX", "renovation India"],
   authors: [{ name: "AURAVIX" }],
   icons: {
     icon: "/favicon.svg",
+    apple: "/favicon.svg",
   },
   openGraph: {
     title: "AURAVIX - Premium Bathroom Renovation & Interior Design",

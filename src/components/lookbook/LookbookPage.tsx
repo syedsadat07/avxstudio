@@ -184,8 +184,8 @@ const sizeFilters: Array<'All' | Size> = ['All', 'Small', 'Medium', 'Large']
 // ─── Helper: budget bucket ──────────────────────────────────────────────────
 
 function getBudgetRange(budget: string): BudgetRange | null {
-  const numStr = budget.replace(/[^\d.]/g, '')
-  const num = parseFloat(numStr)
+  // "₹2L+" or any "+" suffix means the top tier
+  if (budget.includes('+')) return '₹2L+'
   // budget strings like "₹45K-₹60K" → extract the upper bound
   const parts = budget.match(/₹?([\d.]+)(L|K)/g)
   if (!parts) return null

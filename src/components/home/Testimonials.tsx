@@ -89,40 +89,69 @@ export function Testimonials() {
           initial="hidden"
           animate={isInView ? 'visible' : 'hidden'}
         >
-          {testimonials.map((testimonial) => (
-            <motion.div key={testimonial.name} variants={cardVariants}>
-              <Card className="h-full border-border/50 bg-card hover:shadow-lg transition-all duration-500 border-l-4 border-l-gold">
-                <CardContent className="pt-6 pb-6 px-6">
+          {testimonials.map((testimonial, idx) => (
+            <motion.div
+              key={testimonial.name}
+              variants={cardVariants}
+              whileHover={{ y: -8, scale: 1.02 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+            >
+              <Card className="group relative h-full border-border/50 bg-card hover:shadow-xl hover:shadow-gold/10 transition-all duration-500 overflow-hidden">
+                {/* Gold left accent bar */}
+                <div className="absolute top-0 bottom-0 left-0 w-1 bg-gradient-to-b from-gold via-gold/60 to-transparent group-hover:via-gold transition-all duration-500" />
+
+                {/* Large faded quote in background */}
+                <Quote className="absolute top-4 right-4 size-20 text-gold/5 group-hover:text-gold/10 transition-colors duration-500 rotate-180" />
+
+                <CardContent className="pt-6 pb-6 px-6 relative">
                   {/* Quote Icon */}
-                  <Quote className="size-8 text-gold/30 mb-4" />
+                  <motion.div
+                    initial={{ scale: 0, rotate: -180 }}
+                    animate={isInView ? { scale: 1, rotate: 0 } : {}}
+                    transition={{ delay: 0.3 + idx * 0.15, type: 'spring', stiffness: 200, damping: 15 }}
+                  >
+                    <Quote className="size-8 text-gold/40 mb-4" />
+                  </motion.div>
 
                   {/* Quote Text */}
-                  <p className="text-foreground/80 leading-relaxed mb-6 text-[15px]">
+                  <p className="text-foreground/80 leading-relaxed mb-6 text-[15px] italic">
                     &ldquo;{testimonial.quote}&rdquo;
                   </p>
 
                   {/* Rating */}
                   <div className="flex items-center gap-1 mb-4">
                     {Array.from({ length: 5 }).map((_, i) => (
-                      <Star
+                      <motion.span
                         key={i}
-                        className={`size-4 ${
-                          i < testimonial.rating
-                            ? 'text-gold fill-gold'
-                            : 'text-border'
-                        }`}
-                      />
+                        initial={{ scale: 0, opacity: 0 }}
+                        animate={isInView ? { scale: 1, opacity: 1 } : {}}
+                        transition={{ delay: 0.5 + idx * 0.15 + i * 0.08, type: 'spring', stiffness: 300 }}
+                      >
+                        <Star
+                          className={`size-4 ${
+                            i < testimonial.rating
+                              ? 'text-gold fill-gold'
+                              : 'text-border'
+                          }`}
+                        />
+                      </motion.span>
                     ))}
                   </div>
 
                   {/* Author */}
-                  <div>
-                    <p className="font-semibold text-foreground text-sm">
-                      {testimonial.name}
-                    </p>
-                    <p className="text-muted-foreground text-xs mt-0.5">
-                      {testimonial.location}
-                    </p>
+                  <div className="flex items-center gap-3 pt-4 border-t border-border/40">
+                    {/* Avatar circle with initials */}
+                    <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-gold/20 to-gold/5 text-gold font-bold text-sm ring-1 ring-gold/20">
+                      {testimonial.name.split(' ').map(n => n[0]).join('')}
+                    </div>
+                    <div>
+                      <p className="font-semibold text-foreground text-sm">
+                        {testimonial.name}
+                      </p>
+                      <p className="text-muted-foreground text-xs mt-0.5">
+                        {testimonial.location}
+                      </p>
+                    </div>
                   </div>
                 </CardContent>
               </Card>

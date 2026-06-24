@@ -45,25 +45,25 @@ const team = [
     name: 'Arjun Mehta',
     role: 'Founder & CEO',
     bio: 'Visionary leader with 15+ years in interior design and construction management, driving AURAVIX\'s mission to redefine bathroom luxury in India.',
-    gradient: 'from-amber-600 via-yellow-500 to-amber-400',
+    gradient: 'from-amber-700 via-amber-500 to-yellow-400',
   },
   {
     name: 'Kavita Sharma',
     role: 'Head of Design',
     bio: 'Award-winning interior designer who brings an artistic eye and functional sensibility to every bathroom project she oversees.',
-    gradient: 'from-rose-500 via-orange-400 to-amber-400',
+    gradient: 'from-yellow-600 via-amber-500 to-amber-300',
   },
   {
     name: 'Rohan Patel',
     role: 'Operations Lead',
     bio: 'Supply chain and logistics expert ensuring every project is delivered on time with the highest quality standards maintained.',
-    gradient: 'from-emerald-500 via-teal-400 to-amber-400',
+    gradient: 'from-amber-800 via-amber-600 to-yellow-500',
   },
   {
     name: 'Neha Singh',
     role: 'Customer Success',
     bio: 'Passionate about creating seamless client experiences, from first consultation to final handover and beyond.',
-    gradient: 'from-violet-500 via-pink-400 to-amber-400',
+    gradient: 'from-amber-500 via-yellow-400 to-amber-300',
   },
 ]
 

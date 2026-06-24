@@ -12,6 +12,7 @@ import {
   Twitter,
   Clock,
   Navigation,
+  Pin,
 } from 'lucide-react'
 import { useNavigation } from '@/store/navigation'
 import { Card, CardContent } from '@/components/ui/card'
@@ -66,7 +67,7 @@ const socialLinks = [
   { icon: Instagram, label: 'Instagram', href: '#' },
   { icon: Facebook, label: 'Facebook', href: '#' },
   { icon: Twitter, label: 'Twitter', href: '#' },
-  { icon: Clock, label: 'Pinterest', href: '#' },
+  { icon: Pin, label: 'Pinterest', href: '#' },
 ]
 
 const faqs = [
@@ -212,36 +213,25 @@ export function ContactPage() {
         setMessage('')
       } else {
         toast({
-          title: 'Message Sent!',
-          description: 'Thank you for reaching out. We\'ll get back to you within 24 hours.',
+          title: 'Something went wrong',
+          description: data.error || 'Could not send your message. Please try again or call us.',
+          variant: 'destructive',
         })
-        setFullName('')
-        setEmail('')
-        setPhone('')
-        setSubject('')
-        setMessage('')
       }
     } catch {
-      // Even if API fails, show success and reset form
       toast({
-        title: 'Message Sent!',
-        description: 'Thank you for reaching out. We\'ll get back to you within 24 hours.',
+        title: 'Network error',
+        description: 'Could not reach the server. Please check your connection and try again.',
+        variant: 'destructive',
       })
-      setFullName('')
-      setEmail('')
-      setPhone('')
-      setSubject('')
-      setMessage('')
     } finally {
       setIsSubmitting(false)
     }
   }
 
   const handleOpenMaps = () => {
-    toast({
-      title: 'Opening Maps',
-      description: 'AURAVIX Bath Studio, 123 Design District, Andheri West, Mumbai',
-    })
+    const query = encodeURIComponent('AURAVIX Bath Studio, 123 Design District, Andheri West, Mumbai, Maharashtra 400058')
+    window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, '_blank', 'noopener,noreferrer')
   }
 
   return (
