@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Menu, Phone, LogIn, UserCircle } from 'lucide-react'
+import { Menu, Phone, LogIn, UserCircle, LogOut, LayoutDashboard, ChevronDown, Shield, Mail } from 'lucide-react'
 import { useNavigation, type PageId } from '@/store/navigation'
 import { useAuth } from '@/store/auth'
 import { Button } from '@/components/ui/button'
@@ -32,7 +32,9 @@ export function Header() {
   const { user, fetchSession, logout } = useAuth()
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [profileOpen, setProfileOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
+  const profileRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     setMounted(true)
@@ -45,9 +47,28 @@ export function Header() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [fetchSession])
 
+  // Close profile dropdown on click outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (profileRef.current && !profileRef.current.contains(e.target as Node)) {
+        setProfileOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
   const handleNavigate = (page: PageId) => {
     navigate(page)
     setMobileOpen(false)
+    setProfileOpen(false)
+  }
+
+  const handleLogout = async () => {
+    await logout()
+    setProfileOpen(false)
+    setMobileOpen(false)
+    navigate('home')
   }
 
   // Use light (white) text when over the dark hero (home page, not scrolled)
@@ -153,20 +174,95 @@ export function Header() {
               <Phone className="size-4" />
             </motion.a>
 
-            {/* Login / Account button - desktop */}
+            {/* Login / Profile dropdown - desktop */}
             {mounted && user ? (
-              <button
-                onClick={() => handleNavigate(user.role === 'admin' ? 'admin-dashboard' : 'home')}
-                className={`hidden lg:flex items-center gap-1.5 px-3 h-9 rounded-full border text-sm font-medium transition-all duration-300 ${
-                  overDarkHero
-                    ? 'border-white/20 text-white hover:border-gold/40 hover:text-gold hover:bg-gold/10'
-                    : 'border-border text-foreground/70 hover:border-gold/40 hover:text-gold hover:bg-gold/5'
-                }`}
-                aria-label="Account"
-              >
-                <UserCircle className="size-4" />
-                <span className="max-w-[80px] truncate">{user.name?.split(' ')[0] || 'Account'}</span>
-              </button>
+              <div className="relative hidden lg:block" ref={profileRef}>
+                <button
+                  onClick={() => setProfileOpen((o) => !o)}
+                  className={`flex items-center gap-1.5 px-3 h-9 rounded-full border text-sm font-medium transition-all duration-300 ${
+                    overDarkHero
+                      ? 'border-white/20 text-white hover:border-gold/40 hover:text-gold hover:bg-gold/10'
+                      : 'border-border text-foreground/70 hover:border-gold/40 hover:text-gold hover:bg-gold/5'
+                  } ${profileOpen ? 'border-gold/50 text-gold bg-gold/5' : ''}`}
+                  aria-label="Profile menu"
+                  aria-expanded={profileOpen}
+                >
+                  <span className="flex items-center justify-center size-6 rounded-full bg-gradient-to-br from-gold/30 to-gold/10 text-gold text-xs font-bold ring-1 ring-gold/20">
+                    {user.name?.charAt(0).toUpperCase() || 'U'}
+                  </span>
+                  <span className="max-w-[80px] truncate">{user.name?.split(' ')[0] || 'Account'}</span>
+                  <ChevronDown className={`size-3.5 transition-transform duration-300 ${profileOpen ? 'rotate-180' : ''}`} />
+                </button>
+
+                {/* Dropdown menu */}
+                <AnimatePresence>
+                  {profileOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -8, scale: 0.97 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: -8, scale: 0.97 }}
+                      transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+                      className="absolute right-0 top-full mt-2 w-64 rounded-xl border border-border bg-card shadow-2xl shadow-black/10 overflow-hidden z-50"
+                    >
+                      {/* User info header */}
+                      <div className="p-4 bg-gradient-to-br from-gold/10 to-transparent border-b border-border">
+                        <div className="flex items-center gap-3">
+                          <span className="flex items-center justify-center size-10 rounded-full bg-gradient-to-br from-gold/30 to-gold/10 text-gold font-bold ring-1 ring-gold/20">
+                            {user.name?.charAt(0).toUpperCase() || 'U'}
+                          </span>
+                          <div className="min-w-0 flex-1">
+                            <div className="text-sm font-semibold text-foreground truncate">{user.name}</div>
+                            <div className="text-xs text-muted-foreground truncate flex items-center gap-1">
+                              <Mail className="size-3" />
+                              {user.email}
+                            </div>
+                          </div>
+                        </div>
+                        {/* Role badge */}
+                        <div className="mt-3 flex items-center gap-1.5">
+                          {user.role === 'admin' ? (
+                            <span className="inline-flex items-center gap-1 text-[10px] font-bold tracking-wide uppercase px-2 py-0.5 rounded-full bg-gold/15 text-gold ring-1 ring-gold/30">
+                              <Shield className="size-3" /> Administrator
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 text-[10px] font-bold tracking-wide uppercase px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-600 ring-1 ring-blue-500/20">
+                              <UserCircle className="size-3" /> Customer
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Menu items */}
+                      <div className="p-2">
+                        {user.role === 'admin' && (
+                          <button
+                            onClick={() => handleNavigate('admin-dashboard')}
+                            className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium text-foreground hover:bg-gold/10 hover:text-gold transition-colors text-left"
+                          >
+                            <LayoutDashboard className="size-4 text-gold" />
+                            Admin Dashboard
+                          </button>
+                        )}
+                        <button
+                          onClick={() => handleNavigate('home')}
+                          className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium text-foreground hover:bg-gold/10 hover:text-gold transition-colors text-left"
+                        >
+                          <UserCircle className="size-4 text-gold" />
+                          My Account
+                        </button>
+                        {/* Logout button */}
+                        <button
+                          onClick={handleLogout}
+                          className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium text-red-600 hover:bg-red-500/10 transition-colors text-left border-t border-border mt-1 pt-3"
+                        >
+                          <LogOut className="size-4" />
+                          Logout
+                        </button>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             ) : (
               <motion.button
                 whileHover={{ scale: 1.05 }}
@@ -270,17 +366,47 @@ export function Header() {
 
           {/* Mobile CTA */}
           <div className="mt-auto p-6 border-t border-border/50 space-y-3">
-            {/* Login / Account row */}
+            {/* Logged in — profile + logout */}
             {mounted && user ? (
-              <Button
-                onClick={() => handleNavigate(user.role === 'admin' ? 'admin-dashboard' : 'home')}
-                variant="outline"
-                className="w-full h-11 font-medium tracking-wide border-border hover:border-gold/40 hover:text-gold"
-              >
-                <UserCircle className="size-4 mr-2" />
-                {user.name?.split(' ')[0] || 'My Account'}
-              </Button>
+              <>
+                {/* User info card */}
+                <div className="rounded-lg border border-gold/20 bg-gold/5 p-3">
+                  <div className="flex items-center gap-2.5">
+                    <span className="flex items-center justify-center size-9 rounded-full bg-gradient-to-br from-gold/30 to-gold/10 text-gold font-bold ring-1 ring-gold/20">
+                      {user.name?.charAt(0).toUpperCase() || 'U'}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <div className="text-sm font-semibold text-foreground truncate">{user.name}</div>
+                      <div className="text-xs text-muted-foreground truncate">{user.email}</div>
+                    </div>
+                    {user.role === 'admin' && (
+                      <span className="text-[9px] font-bold tracking-wide uppercase px-1.5 py-0.5 rounded-full bg-gold/15 text-gold ring-1 ring-gold/30">
+                        Admin
+                      </span>
+                    )}
+                  </div>
+                </div>
+                {user.role === 'admin' && (
+                  <Button
+                    onClick={() => handleNavigate('admin-dashboard')}
+                    variant="outline"
+                    className="w-full h-11 font-medium tracking-wide border-gold/30 text-gold hover:bg-gold/10"
+                  >
+                    <LayoutDashboard className="size-4 mr-2" />
+                    Admin Dashboard
+                  </Button>
+                )}
+                <Button
+                  onClick={handleLogout}
+                  variant="outline"
+                  className="w-full h-11 font-medium tracking-wide border-red-500/30 text-red-600 hover:bg-red-500/10 hover:text-red-700"
+                >
+                  <LogOut className="size-4 mr-2" />
+                  Logout
+                </Button>
+              </>
             ) : (
+              /* Logged out — login button */
               <Button
                 onClick={() => handleNavigate('auth')}
                 variant="outline"

@@ -578,3 +578,41 @@ Stage Summary:
 - Signup API route creates customer accounts with bcrypt + JWT
 - Full auth flow: header Login → auth page → toggle login/signup → submit → JWT cookie → home
 - Demo credentials: customer@example.com/customer123, admin@auravix.com/admin123
+
+---
+Task ID: 16
+Agent: main
+Task: Add profile menu with logout button to header for customer/admin authentication
+
+Work Log:
+- User reported no logout button visible — needed a profile menu in the header
+- Updated Header (src/components/layout/Header.tsx):
+  - Added profileOpen state + useRef for click-outside detection
+  - Imported LogOut, LayoutDashboard, ChevronDown, Shield, Mail icons
+  - Added handleLogout function that calls logout() + navigates home
+  - Desktop: Replaced simple account button with a full profile dropdown menu:
+    - Trigger button shows user's first initial avatar + name + chevron (rotates on open)
+    - Dropdown (animated with AnimatePresence — fade/scale/slide):
+      - User info header: avatar with first initial, full name, email, role badge (gold "Administrator" for admin, blue "Customer" for customer)
+      - Menu items: "Admin Dashboard" (admin only), "My Account", "Logout" (red, with border separator)
+    - Closes on click outside, on navigate, or on logout
+  - Mobile Sheet: Updated to show full profile section when logged in:
+    - User info card (avatar, name, email, admin badge if applicable)
+    - "Admin Dashboard" button (admin only)
+    - "Logout" button (red outline)
+    - When logged out: shows "Login / Sign Up" button
+- Verified end-to-end via Agent Browser:
+  - Login button visible when logged out ✓
+  - Click Login → auth page → Sign In (customer creds pre-filled) ✓
+  - Session set to customer@example.com ✓
+  - Profile menu button appears in header (with "D" avatar + "Demo" name) ✓
+  - Click profile → dropdown opens with: avatar, "Demo Customer", email, "CUSTOMER" badge, "My Account", "Logout" ✓
+  - Click Logout → session cleared, Login button reappears ✓
+  - Zero errors ✓
+
+Stage Summary:
+- Profile dropdown menu added to header with user info, role badge, and logout
+- Both desktop (animated dropdown) and mobile (full profile section in Sheet) supported
+- Admin users see "Admin Dashboard" link in dropdown; customers see "My Account"
+- Logout clears JWT cookie and returns to logged-out state (Login button reappears)
+- Full login → profile → logout flow verified working
