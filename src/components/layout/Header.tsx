@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Menu, Phone } from 'lucide-react'
+import { Menu, Phone, LogIn, UserCircle } from 'lucide-react'
 import { useNavigation, type PageId } from '@/store/navigation'
+import { useAuth } from '@/store/auth'
 import { Button } from '@/components/ui/button'
 import {
   Sheet,
@@ -28,19 +29,21 @@ const DARK_HERO_PAGES: PageId[] = ['home']
 
 export function Header() {
   const { currentPage, navigate } = useNavigation()
+  const { user, fetchSession, logout } = useAuth()
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
     setMounted(true)
+    fetchSession()
     const handleScroll = () => {
       setScrolled(window.scrollY > 20)
     }
     window.addEventListener('scroll', handleScroll, { passive: true })
     handleScroll()
     return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
+  }, [fetchSession])
 
   const handleNavigate = (page: PageId) => {
     navigate(page)
@@ -138,7 +141,7 @@ export function Header() {
           </nav>
 
           {/* Desktop CTA + Mobile Menu */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             {/* Phone icon - desktop only */}
             <motion.a
               href="tel:+919876543210"
@@ -149,6 +152,37 @@ export function Header() {
             >
               <Phone className="size-4" />
             </motion.a>
+
+            {/* Login / Account button - desktop */}
+            {mounted && user ? (
+              <button
+                onClick={() => handleNavigate(user.role === 'admin' ? 'admin-dashboard' : 'home')}
+                className={`hidden lg:flex items-center gap-1.5 px-3 h-9 rounded-full border text-sm font-medium transition-all duration-300 ${
+                  overDarkHero
+                    ? 'border-white/20 text-white hover:border-gold/40 hover:text-gold hover:bg-gold/10'
+                    : 'border-border text-foreground/70 hover:border-gold/40 hover:text-gold hover:bg-gold/5'
+                }`}
+                aria-label="Account"
+              >
+                <UserCircle className="size-4" />
+                <span className="max-w-[80px] truncate">{user.name?.split(' ')[0] || 'Account'}</span>
+              </button>
+            ) : (
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.97 }}
+                onClick={() => handleNavigate('auth')}
+                className={`hidden lg:flex items-center gap-1.5 px-4 h-9 rounded-full border text-sm font-medium transition-all duration-300 ${
+                  overDarkHero
+                    ? 'border-white/20 text-white hover:border-gold/40 hover:text-gold hover:bg-gold/10'
+                    : 'border-border text-foreground/70 hover:border-gold/40 hover:text-gold hover:bg-gold/5'
+                }`}
+                aria-label="Login or Sign up"
+              >
+                <LogIn className="size-4" />
+                Login
+              </motion.button>
+            )}
 
             {/* CTA Button - desktop with glow pulse */}
             <motion.div
@@ -235,7 +269,27 @@ export function Header() {
           </nav>
 
           {/* Mobile CTA */}
-          <div className="mt-auto p-6 border-t border-border/50">
+          <div className="mt-auto p-6 border-t border-border/50 space-y-3">
+            {/* Login / Account row */}
+            {mounted && user ? (
+              <Button
+                onClick={() => handleNavigate(user.role === 'admin' ? 'admin-dashboard' : 'home')}
+                variant="outline"
+                className="w-full h-11 font-medium tracking-wide border-border hover:border-gold/40 hover:text-gold"
+              >
+                <UserCircle className="size-4 mr-2" />
+                {user.name?.split(' ')[0] || 'My Account'}
+              </Button>
+            ) : (
+              <Button
+                onClick={() => handleNavigate('auth')}
+                variant="outline"
+                className="w-full h-11 font-medium tracking-wide border-border hover:border-gold/40 hover:text-gold"
+              >
+                <LogIn className="size-4 mr-2" />
+                Login / Sign Up
+              </Button>
+            )}
             <Button
               onClick={() => handleNavigate('calculator')}
               className="w-full bg-gold text-gold-foreground hover:bg-gold/90 font-semibold tracking-wide h-12 text-[15px] shadow-[0_4px_20px_rgba(212,175,105,0.3)] transition-all duration-300 hover:shadow-[0_6px_30px_rgba(212,175,105,0.5)]"
@@ -243,7 +297,7 @@ export function Header() {
               <Phone className="size-4 mr-2" />
               Book a Slot
             </Button>
-            <p className="text-xs text-muted-foreground text-center mt-3 tracking-wide">
+            <p className="text-xs text-muted-foreground text-center tracking-wide">
               Pick a date & time for your design consultation
             </p>
           </div>

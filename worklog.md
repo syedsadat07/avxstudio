@@ -527,3 +527,54 @@ Stage Summary:
 - Admin quotations saved to database with admin user attribution
 - Demo credentials: admin@auravix.com/admin123 (admin), customer@example.com/customer123 (customer)
 - All API routes protected with JWT verification
+
+---
+Task ID: 15
+Agent: main
+Task: Add Login/Signup button to header + create animated login/signup page (inspired by Flutter video)
+
+Work Log:
+- Analyzed user's uploaded Flutter animated login screen video (extracted 14 frames with ffmpeg, analyzed key frames with VLM)
+- Design reference: clean login form with mascot, form fields, toggle, minimal aesthetic. Adapted to AURAVIX luxury brand (dark background + gold accents).
+- Created signup API route (src/app/api/auth/signup/route.ts):
+  - Validates name, email, password (min 6 chars)
+  - Checks for existing user (409 conflict)
+  - Hashes password with bcrypt
+  - Creates customer-role user
+  - Issues JWT cookie (7-day expiry)
+  - Returns user object
+- Added 'auth' PageId to navigation store
+- Updated Header (src/components/layout/Header.tsx):
+  - Imported useAuth store + LogIn/UserCircle icons
+  - Fetches session on mount to check login state
+  - Desktop: shows "Login" button (outline pill with LogIn icon) when logged out, OR "Account" button (with user's first name + UserCircle icon) when logged in
+  - Mobile Sheet: shows "Login / Sign Up" button when logged out, OR "My Account" button when logged in
+  - Account button routes admin→admin-dashboard, customer→home
+  - Login button routes to 'auth' page
+- Built AuthPage (src/components/auth/AuthPage.tsx) — premium animated login/signup page:
+  - Dark luxury background with animated gold glow orbs (drifting/pulsing) + 10 floating gold particles
+  - Split layout: left side branding (logo, "Transform Your Bathroom Into a Luxury Sanctuary", feature list with icons, stats) + right side auth card
+  - Animated Login/Sign Up toggle pill (spring-animated gold indicator slides between modes)
+  - Login form: "Welcome Back" heading, email field, password field with show/hide toggle, Sign In button, demo credentials hint
+  - Signup form: "Create Account" heading, full name, email, phone, password + confirm password fields, Create Account button
+  - AnimatePresence transitions between login/signup (slide + fade)
+  - Pre-fills demo customer credentials (customer@example.com / customer123)
+  - Error handling for wrong credentials, duplicate emails, password mismatch
+  - On success: sets user in auth store + navigates home
+  - Glass morphism card with gold gradient top bar
+  - Shine-on-hover effect on submit buttons
+- Updated page.tsx: added AuthPage to router, 'auth' page renders full-screen (no header/footer)
+- Verified end-to-end via Agent Browser:
+  - Homepage header shows Login button (aria-label "Login or Sign up") ✓
+  - Click Login → navigates to auth page with "Welcome Back" + Sign In + Sign Up toggle ✓
+  - Click "Sign Up" toggle → animated switch to "Create Account" form with all fields (name, email, phone, password, confirm) ✓
+  - Demo credentials hint visible ✓
+  - Zero console errors ✓
+  - Premium luxury aesthetic confirmed (dark bg, gold accents, glass card) ✓
+
+Stage Summary:
+- Login button added to header (desktop + mobile) with smart account/login state switching
+- Animated login/signup page with spring-animated toggle, floating particles, gold glows, glass morphism
+- Signup API route creates customer accounts with bcrypt + JWT
+- Full auth flow: header Login → auth page → toggle login/signup → submit → JWT cookie → home
+- Demo credentials: customer@example.com/customer123, admin@auravix.com/admin123

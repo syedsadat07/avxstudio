@@ -20,6 +20,7 @@ import { AboutPage } from '@/components/about/AboutPage'
 import { ContactPage } from '@/components/contact/ContactPage'
 import { AdminLoginPage } from '@/components/admin/AdminLoginPage'
 import { AdminDashboardPage } from '@/components/admin/AdminDashboardPage'
+import { AuthPage } from '@/components/auth/AuthPage'
 import { useNavigation } from '@/store/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -62,13 +63,15 @@ export default function Home() {
         return <AdminLoginPage />
       case 'admin-dashboard':
         return <AdminDashboardPage />
+      case 'auth':
+        return <AuthPage />
       default:
         return <HomePage />
     }
   }
 
-  // Admin pages have their own full-screen layout (no header/footer)
-  const isAdminPage = currentPage === 'admin-login' || currentPage === 'admin-dashboard'
+  // Admin & auth pages have their own full-screen layout (no header/footer)
+  const isAdminPage = currentPage === 'admin-login' || currentPage === 'admin-dashboard' || currentPage === 'auth'
 
   if (isAdminPage) {
     return (
