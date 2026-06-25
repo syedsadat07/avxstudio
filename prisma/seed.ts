@@ -1,7 +1,39 @@
 import { db } from '../src/lib/db'
+import bcrypt from 'bcryptjs'
 
 async function main() {
   console.log('🌱 Seeding database...')
+
+  // ─── Admin & Customer Users ───
+  const adminPassword = await bcrypt.hash('admin123', 10)
+  const customerPassword = await bcrypt.hash('customer123', 10)
+
+  await db.user.upsert({
+    where: { email: 'admin@auravix.com' },
+    update: {},
+    create: {
+      email: 'admin@auravix.com',
+      name: 'AURAVIX Admin',
+      phone: '+919876543210',
+      password: adminPassword,
+      role: 'admin',
+    },
+  })
+
+  await db.user.upsert({
+    where: { email: 'customer@example.com' },
+    update: {},
+    create: {
+      email: 'customer@example.com',
+      name: 'Demo Customer',
+      phone: '+919876540000',
+      password: customerPassword,
+      role: 'customer',
+    },
+  })
+
+  console.log('  ✓ Created admin user (admin@auravix.com / admin123)')
+  console.log('  ✓ Created customer user (customer@example.com / customer123)')
 
   // ─── Testimonials ───
   const testimonials = [

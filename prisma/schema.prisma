@@ -12,7 +12,8 @@ model User {
   email     String   @unique
   name      String?
   phone     String?
-  role      String   @default("user")
+  password  String?
+  role      String   @default("customer") // "customer" | "admin"
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -58,6 +59,23 @@ model Quotation {
   timeline     String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+}
+
+model AdminQuotation {
+  id            String   @id @default(cuid())
+  customerName  String
+  customerEmail String
+  customerPhone String?
+  bathroomSize  String
+  packageTier   String
+  estimatedCost Float
+  timeline      String?
+  status        String   @default("draft") // draft | sent | accepted | rejected
+  notes         String?
+  createdById   String?  // the admin user who created it
+  createdByName String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
 
 model Design {

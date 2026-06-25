@@ -468,3 +468,62 @@ Stage Summary:
 - Premium animations added: scroll progress bar, page transitions, hover lift effects, gold gradient text, glass morphism, shimmer/shine sweeps, glow pulses, spring physics, staggered reveals
 - Site now has a rich, clean, premium aesthetic with consistent gold-accent branding
 - Zero console errors, all navigation working
+
+---
+Task ID: 14
+Agent: main
+Task: Fix footer bug + create admin panel with authentication (customer/admin roles)
+
+Work Log:
+- Fixed footer: enhanced with gold brand mark icon in logo, min-height on columns to prevent collapse, animated arrow icons on quick links, gold dot bullets on services, decorative gold glow, added "Admin Login" link in Quick Links
+- Added password + role fields to Prisma User model (role: "customer" | "admin")
+- Added new AdminQuotation model to Prisma schema (customerName, customerEmail, customerPhone, bathroomSize, packageTier, estimatedCost, timeline, status, notes, createdById, createdByName)
+- Ran prisma db push to sync schema
+- Created admin + customer users with bcrypt-hashed passwords:
+  - Admin: admin@auravix.com / admin123
+  - Customer: customer@example.com / customer123
+- Installed bcryptjs + jose (for JWT) packages
+- Created auth API routes:
+  - /api/auth/login (POST) — validates credentials with bcrypt, creates JWT, sets HTTP-only cookie
+  - /api/auth/logout (POST) — clears cookie
+  - /api/auth/session (GET) — returns current user from JWT
+- Created admin API routes (all protected, admin-only):
+  - /api/admin/quotations (GET/POST/PATCH/DELETE) — CRUD for admin quotations
+  - /api/admin/stats (GET) — dashboard stats (booking/lead/quotation counts + recent items)
+- Created auth Zustand store (src/store/auth.ts) for client-side login state
+- Added 'admin-login' + 'admin-dashboard' to navigation store PageId
+- Built AdminLoginPage (src/components/admin/AdminLoginPage.tsx):
+  - Dark luxury background with animated gold glows
+  - AURAVIX logo + "Secure Portal" badge
+  - Email/password form with show/hide password toggle
+  - Pre-fills demo admin credentials
+  - Error handling for wrong credentials / customer account trying admin login
+  - Demo credential quick-fill buttons (Admin / Customer)
+  - JWT cookie auth via /api/auth/login
+- Built AdminDashboardPage (src/components/admin/AdminDashboardPage.tsx):
+  - Auth guard — redirects to admin-login if not admin
+  - 4 tabs: Overview, Quotations, Bookings, Leads
+  - Overview: 5 stat cards (Bookings, Leads, Admin Quotations, Customer Quotations, Messages) + recent bookings/leads lists + "New Quotation" CTA
+  - Quotations: list of all admin quotations with status dropdown (draft/sent/accepted/rejected), delete button, cost, customer details
+  - Bookings: all customer bookings with date/time/contact
+  - Leads: all leads with source/status/message
+  - Create Quotation modal: full form (customer name/email/phone, bathroom size, package tier, estimated cost, timeline, status, notes) → POST /api/admin/quotations
+  - Logout button
+- Updated page.tsx: admin pages render full-screen (no header/footer), other pages keep header+footer
+- Updated Footer: added "Admin Login" link in Quick Links
+- Verified end-to-end via Agent Browser:
+  - Homepage → scroll to footer → click "Admin Login" → admin login page ✓
+  - Pre-filled credentials → click "Sign In" → admin dashboard ✓
+  - Click "New Quotation" → fill form (Test Customer, ₹125,000, Premium) → Create ✓
+  - Quotation saved to database with createdByName="AURAVIX Admin" ✓
+  - Quotation appears in dashboard list with status dropdown ✓
+  - Zero console errors ✓
+  - Auth API: correct login succeeds, wrong password fails, protected routes return 401 ✓
+
+Stage Summary:
+- Footer enhanced with gold brand mark, min-height columns, animated links, admin login link
+- Full authentication system: JWT cookies + bcrypt password hashing + role-based access (customer/admin)
+- Admin panel with dashboard: stats overview, quotation CRUD, bookings/leads viewers
+- Admin quotations saved to database with admin user attribution
+- Demo credentials: admin@auravix.com/admin123 (admin), customer@example.com/customer123 (customer)
+- All API routes protected with JWT verification

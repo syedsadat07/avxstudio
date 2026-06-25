@@ -1,6 +1,6 @@
 'use client'
 
-import { Instagram, Facebook, Twitter, Pin, MapPin, Phone, Mail, Clock } from 'lucide-react'
+import { Instagram, Facebook, Twitter, Pin, MapPin, Phone, Mail, Clock, ArrowRight } from 'lucide-react'
 import { useNavigation, type PageId } from '@/store/navigation'
 import { toast } from '@/hooks/use-toast'
 
@@ -30,23 +30,34 @@ export function Footer() {
   const { navigate } = useNavigation()
 
   return (
-    <footer className="bg-primary text-primary-foreground" role="contentinfo">
+    <footer className="bg-primary text-primary-foreground relative overflow-hidden" role="contentinfo">
+      {/* Decorative gold glow */}
+      <div
+        className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[300px] rounded-full opacity-10 pointer-events-none"
+        style={{ background: 'radial-gradient(ellipse, rgba(212,175,105,0.4) 0%, transparent 70%)' }}
+      />
+
       {/* Main Footer Content */}
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
+      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-14 sm:py-16 lg:py-20">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-12">
           {/* Brand Column */}
           <div className="sm:col-span-2 lg:col-span-1">
             {/* Logo */}
             <button
               onClick={() => navigate('home')}
-              className="group flex flex-col leading-none transition-opacity hover:opacity-80 mb-5"
+              className="group flex items-center gap-2.5 transition-opacity hover:opacity-80 mb-5"
               aria-label="Go to homepage"
             >
-              <span className="text-2xl font-bold tracking-[0.2em] text-gold">
-                AURAVIX
+              <span className="flex items-center justify-center w-10 h-10 rounded-lg ring-1 ring-gold/30 bg-gradient-to-br from-gold/15 to-gold/5">
+                <img src="/auravix-mark.svg" alt="" className="w-7 h-7 object-contain" />
               </span>
-              <span className="text-[10px] sm:text-xs tracking-[0.35em] text-primary-foreground/60 font-medium mt-1">
-                BATH STUDIO
+              <span className="flex flex-col leading-none">
+                <span className="text-2xl font-bold tracking-[0.2em] text-gold">
+                  AURAVIX
+                </span>
+                <span className="text-[10px] tracking-[0.35em] text-primary-foreground/60 font-medium mt-1">
+                  BATH STUDIO
+                </span>
               </span>
             </button>
 
@@ -61,7 +72,7 @@ export function Footer() {
                 <a
                   key={social.label}
                   href={social.href}
-                  className="flex items-center justify-center size-9 rounded-full border border-primary-foreground/15 text-primary-foreground/50 hover:text-gold hover:border-gold/50 transition-all duration-300 hover:scale-110"
+                  className="flex items-center justify-center size-9 rounded-full border border-primary-foreground/15 text-primary-foreground/50 hover:text-gold hover:border-gold/50 hover:bg-gold/10 transition-all duration-300 hover:scale-110"
                   aria-label={social.label}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -73,7 +84,7 @@ export function Footer() {
           </div>
 
           {/* Quick Links */}
-          <div>
+          <div className="min-h-[180px]">
             <h3 className="text-sm font-semibold tracking-[0.15em] uppercase text-gold mb-5">
               Quick Links
             </h3>
@@ -82,23 +93,34 @@ export function Footer() {
                 <li key={link.id}>
                   <button
                     onClick={() => navigate(link.id)}
-                    className="text-sm text-primary-foreground/60 hover:text-gold transition-colors duration-300 hover:translate-x-1 transform inline-block"
+                    className="group flex items-center gap-1.5 text-sm text-primary-foreground/60 hover:text-gold transition-colors duration-300"
                   >
+                    <ArrowRight className="size-3 opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300" />
                     {link.label}
                   </button>
                 </li>
               ))}
+              <li>
+                <button
+                  onClick={() => navigate('admin-login')}
+                  className="group flex items-center gap-1.5 text-sm text-primary-foreground/60 hover:text-gold transition-colors duration-300"
+                >
+                  <ArrowRight className="size-3 opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300" />
+                  Admin Login
+                </button>
+              </li>
             </ul>
           </div>
 
           {/* Services */}
-          <div>
+          <div className="min-h-[180px]">
             <h3 className="text-sm font-semibold tracking-[0.15em] uppercase text-gold mb-5">
               Services
             </h3>
             <ul className="space-y-3" role="list">
               {services.map((service) => (
-                <li key={service}>
+                <li key={service} className="flex items-center gap-1.5">
+                  <span className="size-1 rounded-full bg-gold/50 shrink-0" />
                   <span className="text-sm text-primary-foreground/60">
                     {service}
                   </span>
@@ -108,7 +130,7 @@ export function Footer() {
           </div>
 
           {/* Contact Info */}
-          <div>
+          <div className="min-h-[180px]">
             <h3 className="text-sm font-semibold tracking-[0.15em] uppercase text-gold mb-5">
               Contact
             </h3>
@@ -153,7 +175,7 @@ export function Footer() {
       </div>
 
       {/* Bottom Bar */}
-      <div className="border-t border-gold/15">
+      <div className="relative z-10 border-t border-gold/15">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-5">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
             <p className="text-xs text-primary-foreground/40 tracking-wide">

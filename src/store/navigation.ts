@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 
-export type PageId = 'home' | 'lookbook' | 'packages' | 'calculator' | 'booking' | 'slot-booking' | 'blog' | 'about' | 'contact'
+export type PageId = 'home' | 'lookbook' | 'packages' | 'calculator' | 'booking' | 'slot-booking' | 'blog' | 'about' | 'contact' | 'admin-login' | 'admin-dashboard'
 
 interface NavigationState {
   currentPage: PageId
