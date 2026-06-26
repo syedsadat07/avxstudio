@@ -38,77 +38,73 @@ import { useToast } from '@/hooks/use-toast'
 
 /* ──────────────── Types & Data ──────────────── */
 
-type BathroomSize = 'small' | 'medium' | 'large' | 'xl'
 type PackageTier = 'basic' | 'premium' | 'luxury'
-type TileType = 'ceramic' | 'vitrified' | 'porcelain' | 'italian-marble'
-type WallTreatment = 'paint' | 'ceramic-tiles' | 'premium-tiles' | 'stone-cladding'
+type TileType = 'ceramic' | 'vitrified'
 type VanityType = 'wall-mounted' | 'floor-standing' | 'designer' | 'custom'
 type ShowerType = 'standard' | 'rain-shower' | 'shower-panel' | 'shower-body-jets'
 type AddOnKey =
   | 'shower-enclosure'
   | 'bathtub'
-  | 'heated-towel-rack'
   | 'led-mirror'
-  | 'smart-lighting'
-  | 'exhaust-fan'
-  | 'water-heater'
 
-const SIZE_LABELS: Record<BathroomSize, string> = {
-  small: 'Small (< 40 sq ft)',
-  medium: 'Medium (40-80 sq ft)',
-  large: 'Large (80-120 sq ft)',
-  xl: 'Extra Large (120+ sq ft)',
+// ─── Package pricing (per square foot) ───
+const PACKAGE_RATE: Record<PackageTier, number> = {
+  basic: 2500,
+  premium: 3500,
+  luxury: 4500,
 }
 
-const SIZE_SQFT: Record<BathroomSize, number> = {
-  small: 35,
-  medium: 60,
-  large: 100,
-  xl: 140,
+const PACKAGE_PRICE_LABEL: Record<PackageTier, string> = {
+  basic: '₹2,500/Sq. Ft.',
+  premium: '₹3,500/Sq. Ft.',
+  luxury: '₹4,500/Sq. Ft.',
 }
 
-const BASE_COSTS: Record<PackageTier, Record<BathroomSize, number>> = {
-  basic: { small: 35000, medium: 45000, large: 60000, xl: 80000 },
-  premium: { small: 55000, medium: 75000, large: 95000, xl: 120000 },
-  luxury: { small: 85000, medium: 110000, large: 140000, xl: 180000 },
+const TILE_LABELS: Record<TileType, string> = {
+  ceramic: 'Ceramic',
+  vitrified: 'Vitrified',
 }
 
-const TILE_COSTS: Record<TileType, { label: string; cost: number }> = {
-  ceramic: { label: 'Ceramic (₹40/sq ft)', cost: 40 },
-  vitrified: { label: 'Vitrified (₹70/sq ft)', cost: 70 },
-  porcelain: { label: 'Porcelain (₹100/sq ft)', cost: 100 },
-  'italian-marble': { label: 'Italian Marble (₹250/sq ft)', cost: 250 },
+// Tile costs (hidden from UI — used in cost breakdown only)
+const TILE_COSTS: Record<TileType, number> = {
+  ceramic: 40,
+  vitrified: 70,
 }
 
-const WALL_COSTS: Record<WallTreatment, { label: string; cost: number }> = {
-  paint: { label: 'Paint (₹15/sq ft)', cost: 15 },
-  'ceramic-tiles': { label: 'Ceramic Tiles (₹50/sq ft)', cost: 50 },
-  'premium-tiles': { label: 'Premium Tiles (₹90/sq ft)', cost: 90 },
-  'stone-cladding': { label: 'Stone Cladding (₹180/sq ft)', cost: 180 },
+const VANITY_LABELS: Record<VanityType, string> = {
+  'wall-mounted': 'Wall-mounted',
+  'floor-standing': 'Floor-standing',
+  designer: 'Designer',
+  custom: 'Custom',
 }
 
-const VANITY_COSTS: Record<VanityType, { label: string; cost: number }> = {
-  'wall-mounted': { label: 'Wall-mounted (₹8,000)', cost: 8000 },
-  'floor-standing': { label: 'Floor-standing (₹12,000)', cost: 12000 },
-  designer: { label: 'Designer (₹25,000)', cost: 25000 },
-  custom: { label: 'Custom (₹40,000+)', cost: 40000 },
+// Vanity costs (hidden from UI — used in cost breakdown only)
+const VANITY_COSTS: Record<VanityType, number> = {
+  'wall-mounted': 8000,
+  'floor-standing': 12000,
+  designer: 25000,
+  custom: 40000,
 }
 
-const SHOWER_COSTS: Record<ShowerType, { label: string; cost: number }> = {
-  standard: { label: 'Standard (₹3,000)', cost: 3000 },
-  'rain-shower': { label: 'Rain Shower (₹8,000)', cost: 8000 },
-  'shower-panel': { label: 'Shower Panel (₹15,000)', cost: 15000 },
-  'shower-body-jets': { label: 'Shower + Body Jets (₹25,000)', cost: 25000 },
+const SHOWER_LABELS: Record<ShowerType, string> = {
+  standard: 'Standard',
+  'rain-shower': 'Rain Shower',
+  'shower-panel': 'Shower Panel',
+  'shower-body-jets': 'Shower + Body Jets',
+}
+
+// Shower costs (hidden from UI — used in cost breakdown only)
+const SHOWER_COSTS: Record<ShowerType, number> = {
+  standard: 3000,
+  'rain-shower': 8000,
+  'shower-panel': 15000,
+  'shower-body-jets': 25000,
 }
 
 const ADD_ONS: Record<AddOnKey, { label: string; cost: number }> = {
   'shower-enclosure': { label: 'Shower Enclosure', cost: 12000 },
   bathtub: { label: 'Bathtub', cost: 25000 },
-  'heated-towel-rack': { label: 'Heated Towel Rack', cost: 5000 },
   'led-mirror': { label: 'LED Mirror', cost: 3500 },
-  'smart-lighting': { label: 'Smart Lighting', cost: 8000 },
-  'exhaust-fan': { label: 'Exhaust Fan', cost: 2000 },
-  'water-heater': { label: 'Water Heater', cost: 6000 },
 }
 
 /* ──────────────── Helpers ──────────────── */
@@ -124,21 +120,14 @@ function formatIndianCurrency(amount: number): string {
   return `₹${formatted}`
 }
 
-function getTimeline(size: BathroomSize, tier: PackageTier): string {
-  const baseDays: Record<BathroomSize, [number, number]> = {
-    small: [12, 16],
-    medium: [15, 20],
-    large: [18, 24],
-    xl: [22, 28],
+function getTimeline(tier: PackageTier): string {
+  const tierDays: Record<PackageTier, [number, number]> = {
+    basic: [20, 25],
+    premium: [25, 30],
+    luxury: [30, 35],
   }
-  const tierOffset: Record<PackageTier, [number, number]> = {
-    basic: [0, 0],
-    premium: [2, 3],
-    luxury: [4, 6],
-  }
-  const [bMin, bMax] = baseDays[size]
-  const [tMin, tMax] = tierOffset[tier]
-  return `Estimated: ${bMin + tMin}-${bMax + tMax} working days`
+  const [min, max] = tierDays[tier]
+  return `Estimated: ${min}-${max} days`
 }
 
 /* ──────────────── Animation variants ──────────────── */
@@ -168,11 +157,10 @@ export function CalculatorPage() {
   const { toast } = useToast()
 
   // Form state
-  const [bathroomSize, setBathroomSize] = useState<BathroomSize>('medium')
-  const [numBathrooms, setNumBathrooms] = useState('1')
+  const [bathroomLength, setBathroomLength] = useState('')
+  const [bathroomWidth, setBathroomWidth] = useState('')
   const [packageTier, setPackageTier] = useState<PackageTier>('premium')
   const [tileType, setTileType] = useState<TileType>('vitrified')
-  const [wallTreatment, setWallTreatment] = useState<WallTreatment>('ceramic-tiles')
   const [vanityType, setVanityType] = useState<VanityType>('floor-standing')
   const [showerType, setShowerType] = useState<ShowerType>('rain-shower')
   const [selectedAddOns, setSelectedAddOns] = useState<Set<AddOnKey>>(new Set())
@@ -181,7 +169,7 @@ export function CalculatorPage() {
   const [weekOffset, setWeekOffset] = useState(0) // 0 = current week, 1 = next week, etc.
   const [selectedDateId, setSelectedDateId] = useState<string | null>(null)
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string | null>(null)
-  const [bookingForm, setBookingForm] = useState({ name: '', email: '', phone: '', notes: '' })
+  const [bookingForm, setBookingForm] = useState({ name: '', email: '', phone: '', address: '', notes: '' })
   const [bookingConfirmed, setBookingConfirmed] = useState(false)
   const [bookingReference, setBookingReference] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -205,37 +193,42 @@ export function CalculatorPage() {
     })
   }
 
+  // ─── Bathroom area calculation (Length × Width in feet) ───
+  const bathroomArea = useMemo(() => {
+    const l = parseFloat(bathroomLength)
+    const w = parseFloat(bathroomWidth)
+    if (isNaN(l) || isNaN(w) || l <= 0 || w <= 0) return 0
+    return Math.round(l * w)
+  }, [bathroomLength, bathroomWidth])
+
   // Cost calculations
   const costs = useMemo(() => {
-    const sqft = SIZE_SQFT[bathroomSize]
-    const bathCount = numBathrooms === '4+' ? 4 : parseInt(numBathrooms)
+    const rate = PACKAGE_RATE[packageTier]
+    const baseCost = bathroomArea * rate
 
-    const baseCost = BASE_COSTS[packageTier][bathroomSize] * bathCount
-    const tilesCost = TILE_COSTS[tileType].cost * sqft * bathCount
-    const wallCost = WALL_COSTS[wallTreatment].cost * sqft * bathCount
-    const vanityCost = VANITY_COSTS[vanityType].cost * bathCount
-    const showerCost = SHOWER_COSTS[showerType].cost * bathCount
+    // Add-on costs (tiles, vanity, shower, add-ons are included in the per-sqft rate
+    // but we track them for display in the cost breakdown as selected items)
+    const tilesCost = TILE_COSTS[tileType] * bathroomArea
+    const vanityCost = VANITY_COSTS[vanityType]
+    const showerCost = SHOWER_COSTS[showerType]
 
     let addOnsTotal = 0
     selectedAddOns.forEach((key) => {
-      addOnsTotal += ADD_ONS[key].cost * bathCount
+      addOnsTotal += ADD_ONS[key].cost
     })
 
-    const materialsTotal = baseCost + tilesCost + wallCost + vanityCost + showerCost + addOnsTotal
-    const laborCost = Math.round(materialsTotal * 0.15)
-    const totalCost = materialsTotal + laborCost
+    // Total = package rate × area + add-ons (no separate labor line — it's included in the rate)
+    const totalCost = baseCost + addOnsTotal
 
     return {
       baseCost,
       tilesCost,
-      wallCost,
       vanityCost,
       showerCost,
       addOnsTotal,
-      laborCost,
       totalCost,
     }
-  }, [bathroomSize, numBathrooms, packageTier, tileType, wallTreatment, vanityType, showerType, selectedAddOns])
+  }, [bathroomArea, packageTier, tileType, vanityType, showerType, selectedAddOns])
 
   // Download quotation handler
   const handleDownload = () => {
@@ -275,12 +268,9 @@ export function CalculatorPage() {
   }, [weekOffset])
 
   const TIME_SLOTS = [
-    { id: '10:00 AM', label: '10:00 AM', sub: 'Morning' },
-    { id: '11:30 AM', label: '11:30 AM', sub: 'Morning' },
+    { id: '11:00 AM', label: '11:00 AM', sub: 'Morning' },
     { id: '2:00 PM', label: '2:00 PM', sub: 'Afternoon' },
-    { id: '3:30 PM', label: '3:30 PM', sub: 'Afternoon' },
-    { id: '5:00 PM', label: '5:00 PM', sub: 'Evening' },
-    { id: '6:30 PM', label: '6:30 PM', sub: 'Evening' },
+    { id: '4:00 PM', label: '4:00 PM', sub: 'Evening' },
   ]
 
   const weekLabel = useMemo(() => {
@@ -291,7 +281,7 @@ export function CalculatorPage() {
   }, [weekDays])
 
   const handleConfirmBooking = async () => {
-    if (!selectedDateId || !selectedTimeSlot || !bookingForm.name || !bookingForm.email || !bookingForm.phone) return
+    if (!selectedDateId || !selectedTimeSlot || !bookingForm.name || !bookingForm.email || !bookingForm.phone || !bookingForm.address) return
     setIsSubmitting(true)
     const selectedDay = weekDays.find((d) => d.id === selectedDateId)
     try {
@@ -302,13 +292,13 @@ export function CalculatorPage() {
           fullName: bookingForm.name,
           email: bookingForm.email,
           phone: bookingForm.phone,
-          city: 'Mumbai',
+          city: bookingForm.address,
           preferredDate: selectedDay?.fullDate || selectedDateId,
           timeSlot: selectedTimeSlot,
           consultationType: 'studio-visit',
-          bathroomStatus: `${bathroomSize}-${packageTier}`,
+          bathroomStatus: `${bathroomArea}sqft-${packageTier}`,
           budgetRange: formatIndianCurrency(costs.totalCost),
-          requirements: `Calculator estimate: ${formatIndianCurrency(costs.totalCost)} | Notes: ${bookingForm.notes}`,
+          requirements: `Calculator estimate: ${formatIndianCurrency(costs.totalCost)} | Address: ${bookingForm.address} | Notes: ${bookingForm.notes}`,
         }),
       })
       const data = await res.json()
@@ -376,64 +366,62 @@ export function CalculatorPage() {
                       <span className="flex items-center justify-center size-7 rounded-lg bg-gold/10 text-gold text-xs font-bold">
                         1
                       </span>
-                      Bathroom Details
+                      Bathroom Dimensions
                     </h2>
                   </CardHeader>
                   <CardContent className="space-y-6">
-                    {/* Bathroom Size */}
-                    <div className="space-y-2">
-                      <Label className="text-sm font-medium text-foreground">
-                        Bathroom Size
-                      </Label>
-                      <Select
-                        value={bathroomSize}
-                        onValueChange={(v) => setBathroomSize(v as BathroomSize)}
-                      >
-                        <SelectTrigger className="w-full h-11">
-                          <SelectValue placeholder="Select bathroom size" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {(Object.keys(SIZE_LABELS) as BathroomSize[]).map((key) => (
-                            <SelectItem key={key} value={key}>
-                              {SIZE_LABELS[key]}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                    {/* Length × Width Calculator */}
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="bath-length" className="text-sm font-medium text-foreground">
+                          Length (ft)
+                        </Label>
+                        <Input
+                          id="bath-length"
+                          type="number"
+                          min="1"
+                          step="0.5"
+                          value={bathroomLength}
+                          onChange={(e) => setBathroomLength(e.target.value)}
+                          placeholder="e.g. 8"
+                          className="h-11"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="bath-width" className="text-sm font-medium text-foreground">
+                          Width (ft)
+                        </Label>
+                        <Input
+                          id="bath-width"
+                          type="number"
+                          min="1"
+                          step="0.5"
+                          value={bathroomWidth}
+                          onChange={(e) => setBathroomWidth(e.target.value)}
+                          placeholder="e.g. 6"
+                          className="h-11"
+                        />
+                      </div>
                     </div>
 
-                    {/* Number of Bathrooms */}
-                    <div className="space-y-3">
-                      <Label className="text-sm font-medium text-foreground">
-                        Number of Bathrooms
-                      </Label>
-                      <RadioGroup
-                        value={numBathrooms}
-                        onValueChange={setNumBathrooms}
-                        className="flex flex-wrap gap-3"
-                      >
-                        {['1', '2', '3', '4+'].map((val) => (
-                          <div key={val} className="flex items-center gap-2">
-                            <RadioGroupItem
-                              value={val}
-                              id={`bath-${val}`}
-                              className="data-[state=checked]:border-gold data-[state=checked]:text-gold [&>svg]:fill-gold [&>svg]:text-gold"
-                            />
-                            <Label
-                              htmlFor={`bath-${val}`}
-                              className="text-sm cursor-pointer text-muted-foreground hover:text-foreground transition-colors"
-                            >
-                              {val}
-                            </Label>
-                          </div>
-                        ))}
-                      </RadioGroup>
+                    {/* Calculated Area */}
+                    <div className="rounded-xl border border-gold/20 bg-gold/5 p-4 flex items-center justify-between">
+                      <div>
+                        <p className="text-xs text-muted-foreground">Total Bathroom Area</p>
+                        <p className="text-sm text-muted-foreground mt-0.5">Length × Width</p>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-2xl font-bold text-gold">
+                          {bathroomArea > 0 ? bathroomArea : '—'}
+                        </span>
+                        <span className="text-sm text-muted-foreground ml-1">Sq. Ft.</span>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
               </motion.div>
 
-              {/* Section 2: Material Selection */}
+              {/* Section 2: Package Selection */}
               <motion.div variants={fadeInUp} custom={0.1}>
                 <Card className="border-border/50 bg-card shadow-sm">
                   <CardHeader className="pb-4">
@@ -441,7 +429,7 @@ export function CalculatorPage() {
                       <span className="flex items-center justify-center size-7 rounded-lg bg-gold/10 text-gold text-xs font-bold">
                         2
                       </span>
-                      Material Selection
+                      Package Selection
                     </h2>
                   </CardHeader>
                   <CardContent className="space-y-6">
@@ -475,31 +463,34 @@ export function CalculatorPage() {
                           <label
                             key={tier.value}
                             htmlFor={`tier-${tier.value}`}
-                            className={`flex items-start gap-3 rounded-xl border p-4 cursor-pointer transition-all duration-200 ${
+                            className={`flex flex-col rounded-xl border p-4 cursor-pointer transition-all duration-200 ${
                               packageTier === tier.value
                                 ? 'border-gold/60 bg-gold/5 shadow-sm'
                                 : 'border-border/50 hover:border-border hover:bg-muted/30'
                             }`}
                           >
-                            <RadioGroupItem
-                              value={tier.value}
-                              id={`tier-${tier.value}`}
-                              className="mt-0.5 data-[state=checked]:border-gold data-[state=checked]:text-gold [&>svg]:fill-gold [&>svg]:text-gold"
-                            />
-                            <div className="space-y-1">
+                            <div className="flex items-center gap-3 mb-2">
+                              <RadioGroupItem
+                                value={tier.value}
+                                id={`tier-${tier.value}`}
+                                className="data-[state=checked]:border-gold data-[state=checked]:text-gold [&>svg]:fill-gold [&>svg]:text-gold"
+                              />
                               <span className="text-sm font-semibold text-foreground">
                                 {tier.label}
                               </span>
-                              <p className="text-xs text-muted-foreground leading-relaxed">
-                                {tier.desc}
-                              </p>
                             </div>
+                            <p className="text-xs text-muted-foreground leading-relaxed mb-2">
+                              {tier.desc}
+                            </p>
+                            <span className="text-lg font-bold text-gold">
+                              {PACKAGE_PRICE_LABEL[tier.value as PackageTier]}
+                            </span>
                           </label>
                         ))}
                       </RadioGroup>
                     </div>
 
-                    {/* Tile Selection */}
+                    {/* Tile Selection (names only, no prices) */}
                     <div className="space-y-2">
                       <Label className="text-sm font-medium text-foreground">
                         Tile Selection
@@ -512,31 +503,9 @@ export function CalculatorPage() {
                           <SelectValue placeholder="Select tile type" />
                         </SelectTrigger>
                         <SelectContent>
-                          {(Object.keys(TILE_COSTS) as TileType[]).map((key) => (
+                          {(Object.keys(TILE_LABELS) as TileType[]).map((key) => (
                             <SelectItem key={key} value={key}>
-                              {TILE_COSTS[key].label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    {/* Wall Treatment */}
-                    <div className="space-y-2">
-                      <Label className="text-sm font-medium text-foreground">
-                        Wall Treatment
-                      </Label>
-                      <Select
-                        value={wallTreatment}
-                        onValueChange={(v) => setWallTreatment(v as WallTreatment)}
-                      >
-                        <SelectTrigger className="w-full h-11">
-                          <SelectValue placeholder="Select wall treatment" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {(Object.keys(WALL_COSTS) as WallTreatment[]).map((key) => (
-                            <SelectItem key={key} value={key}>
-                              {WALL_COSTS[key].label}
+                              {TILE_LABELS[key]}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -558,7 +527,7 @@ export function CalculatorPage() {
                     </h2>
                   </CardHeader>
                   <CardContent className="space-y-6">
-                    {/* Vanity Type */}
+                    {/* Vanity Type (names only, no prices) */}
                     <div className="space-y-2">
                       <Label className="text-sm font-medium text-foreground">
                         Vanity Type
@@ -571,16 +540,16 @@ export function CalculatorPage() {
                           <SelectValue placeholder="Select vanity type" />
                         </SelectTrigger>
                         <SelectContent>
-                          {(Object.keys(VANITY_COSTS) as VanityType[]).map((key) => (
+                          {(Object.keys(VANITY_LABELS) as VanityType[]).map((key) => (
                             <SelectItem key={key} value={key}>
-                              {VANITY_COSTS[key].label}
+                              {VANITY_LABELS[key]}
                             </SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
                     </div>
 
-                    {/* Shower Type */}
+                    {/* Shower Type (names only, no prices) */}
                     <div className="space-y-2">
                       <Label className="text-sm font-medium text-foreground">
                         Shower Type
@@ -593,21 +562,21 @@ export function CalculatorPage() {
                           <SelectValue placeholder="Select shower type" />
                         </SelectTrigger>
                         <SelectContent>
-                          {(Object.keys(SHOWER_COSTS) as ShowerType[]).map((key) => (
+                          {(Object.keys(SHOWER_LABELS) as ShowerType[]).map((key) => (
                             <SelectItem key={key} value={key}>
-                              {SHOWER_COSTS[key].label}
+                              {SHOWER_LABELS[key]}
                             </SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
                     </div>
 
-                    {/* Add-ons */}
+                    {/* Add-ons (names only, no prices) */}
                     <div className="space-y-3">
                       <Label className="text-sm font-medium text-foreground">
                         Add-ons
                       </Label>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         {(Object.keys(ADD_ONS) as AddOnKey[]).map((key) => {
                           const isChecked = selectedAddOns.has(key)
                           return (
@@ -626,12 +595,7 @@ export function CalculatorPage() {
                                 onCheckedChange={() => toggleAddOn(key)}
                                 className="data-[state=checked]:bg-gold data-[state=checked]:border-gold data-[state=checked]:text-gold-foreground"
                               />
-                              <div className="flex items-center justify-between w-full gap-2">
-                                <span className="text-sm text-foreground">{ADD_ONS[key].label}</span>
-                                <span className="text-xs text-muted-foreground whitespace-nowrap">
-                                  +{formatIndianCurrency(ADD_ONS[key].cost)}
-                                </span>
-                              </div>
+                              <span className="text-sm text-foreground">{ADD_ONS[key].label}</span>
                             </label>
                           )
                         })}
@@ -656,31 +620,51 @@ export function CalculatorPage() {
                         Cost Breakdown
                       </h2>
                       <p className="text-xs text-muted-foreground">
-                        Real-time estimated costs
+                        Selected items & estimated total
                       </p>
                     </CardHeader>
 
                     <CardContent className="space-y-4">
-                      {/* Individual costs */}
-                      <div className="space-y-3">
-                        <CostRow label="Base Cost" value={costs.baseCost} />
-                        <CostRow label="Tiles Cost" value={costs.tilesCost} />
-                        <CostRow label="Wall Treatment" value={costs.wallCost} />
-                        <CostRow label="Vanity" value={costs.vanityCost} />
-                        <CostRow label="Shower" value={costs.showerCost} />
-                        {costs.addOnsTotal > 0 && (
-                          <CostRow label="Add-ons" value={costs.addOnsTotal} />
+                      {/* Selected items (names only, no individual prices) */}
+                      <div className="space-y-2.5">
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-muted-foreground">Package</span>
+                          <span className="font-medium text-foreground capitalize">{packageTier} ({PACKAGE_PRICE_LABEL[packageTier]})</span>
+                        </div>
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-muted-foreground">Bathroom Area</span>
+                          <span className="font-medium text-foreground">{bathroomArea > 0 ? `${bathroomArea} Sq. Ft.` : '—'}</span>
+                        </div>
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-muted-foreground">Tile</span>
+                          <span className="font-medium text-foreground">{TILE_LABELS[tileType]}</span>
+                        </div>
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-muted-foreground">Vanity</span>
+                          <span className="font-medium text-foreground">{VANITY_LABELS[vanityType]}</span>
+                        </div>
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-muted-foreground">Shower</span>
+                          <span className="font-medium text-foreground">{SHOWER_LABELS[showerType]}</span>
+                        </div>
+                        {selectedAddOns.size > 0 && (
+                          <div className="flex items-start justify-between text-sm gap-4">
+                            <span className="text-muted-foreground shrink-0">Add-ons</span>
+                            <span className="font-medium text-foreground text-right">
+                              {[...selectedAddOns].map((k) => ADD_ONS[k].label).join(', ')}
+                            </span>
+                          </div>
                         )}
-                        <CostRow label="Labor & Installation (15%)" value={costs.laborCost} />
                       </div>
 
                       <Separator className="bg-border/50" />
 
-                      {/* Total */}
+                      {/* Total (excluding GST) */}
                       <div className="flex items-center justify-between py-1">
                         <span className="text-base font-bold text-foreground">
-                          Total Estimated Cost
+                          Estimated Total Cost
                         </span>
+                        <span className="text-xs text-muted-foreground">(excl. GST)</span>
                         <motion.span
                           key={costs.totalCost}
                           initial={{ scale: 1.05, opacity: 0.8 }}
@@ -688,7 +672,7 @@ export function CalculatorPage() {
                           transition={{ duration: 0.3, ease: 'easeOut' }}
                           className="text-2xl font-bold text-gold"
                         >
-                          {formatIndianCurrency(costs.totalCost)}
+                          {bathroomArea > 0 ? formatIndianCurrency(costs.totalCost) : '—'}
                         </motion.span>
                       </div>
 
@@ -696,8 +680,18 @@ export function CalculatorPage() {
                       <div className="flex items-center gap-2 rounded-lg bg-muted/50 px-4 py-3">
                         <Clock className="size-4 text-gold shrink-0" />
                         <span className="text-sm text-muted-foreground">
-                          {getTimeline(bathroomSize, packageTier)}
+                          {getTimeline(packageTier)}
                         </span>
+                      </div>
+
+                      {/* Thank you message */}
+                      <div className="rounded-lg border border-gold/20 bg-gold/5 px-4 py-3 text-center">
+                        <p className="text-sm font-semibold text-foreground">
+                          Thank you for visiting AURAVIX BATH STUDIO.
+                        </p>
+                        <p className="text-sm text-gold font-semibold mt-1">
+                          Book a Consultation for just ₹299/-
+                        </p>
                       </div>
 
                       {/* Action Buttons */}
@@ -718,7 +712,7 @@ export function CalculatorPage() {
                             className="w-full h-12 font-semibold tracking-wide text-sm border-border hover:border-gold/40 hover:text-gold transition-all duration-300"
                           >
                             <CalendarDays className="size-4 mr-2" />
-                            Book a Slot Below
+                            Book a Consultation Below
                           </Button>
                         </a>
                       </div>
@@ -823,6 +817,12 @@ export function CalculatorPage() {
                       <span className="text-muted-foreground">Estimate</span>
                       <span className="font-medium text-foreground">{formatIndianCurrency(costs.totalCost)}</span>
                     </div>
+                    {bookingForm.address && (
+                      <div className="flex justify-between text-sm gap-4">
+                        <span className="text-muted-foreground shrink-0">Address</span>
+                        <span className="font-medium text-foreground text-right">{bookingForm.address}</span>
+                      </div>
+                    )}
                     <Separator />
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Reference</span>
@@ -835,7 +835,7 @@ export function CalculatorPage() {
                         setBookingConfirmed(false)
                         setSelectedDateId(null)
                         setSelectedTimeSlot(null)
-                        setBookingForm({ name: '', email: '', phone: '', notes: '' })
+                        setBookingForm({ name: '', email: '', phone: '', address: '', notes: '' })
                       }}
                       variant="outline"
                       className="border-gold/30 text-gold hover:bg-gold/10 hover:text-gold"
@@ -894,14 +894,19 @@ export function CalculatorPage() {
 
                   {/* ─── Day pills ─── */}
                   <div className="grid grid-cols-4 sm:grid-cols-7 gap-2 sm:gap-3 mb-8">
-                    {weekDays.map((d) => {
+                    {weekDays.map((d, idx) => {
                       const isActive = selectedDateId === d.id
                       const isDisabled = d.isPast
                       return (
-                        <button
+                        <motion.button
                           key={d.id}
                           type="button"
                           disabled={isDisabled}
+                          initial={{ opacity: 0, y: 15 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: idx * 0.05, duration: 0.3 }}
+                          whileHover={!isDisabled ? { scale: 1.05, y: -2 } : {}}
+                          whileTap={!isDisabled ? { scale: 0.95 } : {}}
                           onClick={() => {
                             setSelectedDateId(d.id)
                             setSelectedTimeSlot(null)
@@ -915,21 +920,31 @@ export function CalculatorPage() {
                           }`}
                         >
                           {d.isToday && !isActive && (
-                            <span className="absolute top-1 right-1 size-1.5 rounded-full bg-gold" aria-label="Today" />
+                            <span className="absolute top-1 right-1 size-1.5 rounded-full bg-gold animate-pulse" aria-label="Today" />
                           )}
                           <div className="text-[10px] sm:text-xs font-medium tracking-wide uppercase opacity-80">
                             {d.day}
                           </div>
                           <div className="text-lg sm:text-xl font-bold mt-0.5">{d.dateNum}</div>
                           <div className="text-[9px] sm:text-[10px] opacity-70">{d.month}</div>
-                        </button>
+                        </motion.button>
                       )
                     })}
                   </div>
 
                   {/* ─── Time slots ─── */}
-                  <div className={`transition-opacity duration-300 ${selectedDateId ? 'opacity-100' : 'opacity-40 pointer-events-none'}`}>
-                    <h3 className="text-lg sm:text-xl font-bold text-foreground flex items-center gap-2 mb-4">
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: selectedDateId ? 1 : 0.4, height: 'auto' }}
+                    transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                    className={`${selectedDateId ? '' : 'pointer-events-none'}`}
+                  >
+                    <motion.h3
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.1 }}
+                      className="text-lg sm:text-xl font-bold text-foreground flex items-center gap-2 mb-4"
+                    >
                       <Clock className="size-5 text-gold" />
                       Select a time
                       {selectedDateId && (
@@ -937,14 +952,19 @@ export function CalculatorPage() {
                           · {weekDays.find((d) => d.id === selectedDateId)?.fullDate}
                         </span>
                       )}
-                    </h3>
+                    </motion.h3>
                     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3 mb-8">
-                      {TIME_SLOTS.map((slot) => {
+                      {TIME_SLOTS.map((slot, idx) => {
                         const isActive = selectedTimeSlot === slot.id
                         return (
-                          <button
+                          <motion.button
                             key={slot.id}
                             type="button"
+                            initial={{ opacity: 0, y: 15 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.15 + idx * 0.06, duration: 0.3 }}
+                            whileHover={{ scale: 1.05, y: -2 }}
+                            whileTap={{ scale: 0.95 }}
                             onClick={() => setSelectedTimeSlot(slot.id)}
                             className={`rounded-xl border px-3 py-3 text-center transition-all duration-200 ${
                               isActive
@@ -956,64 +976,120 @@ export function CalculatorPage() {
                               {slot.label}
                             </div>
                             <div className="text-[10px] text-muted-foreground mt-0.5">{slot.sub}</div>
-                          </button>
+                          </motion.button>
                         )
                       })}
                     </div>
 
                     {/* ─── Contact form ─── */}
-                    <div className={`transition-opacity duration-300 ${selectedTimeSlot ? 'opacity-100' : 'opacity-40 pointer-events-none'}`}>
-                      <h3 className="text-lg sm:text-xl font-bold text-foreground flex items-center gap-2 mb-4">
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: selectedTimeSlot ? 1 : 0.4, height: 'auto' }}
+                      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                      className={`${selectedTimeSlot ? '' : 'pointer-events-none'}`}
+                    >
+                      <motion.h3
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.1 }}
+                        className="text-lg sm:text-xl font-bold text-foreground flex items-center gap-2 mb-4"
+                      >
                         <User className="size-5 text-gold" />
                         Your details
-                      </h3>
+                      </motion.h3>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div className="space-y-2">
+                        {/* Full Name — staggered entrance */}
+                        <motion.div
+                          initial={{ opacity: 0, y: 15 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.15, duration: 0.4 }}
+                          className="space-y-2"
+                        >
                           <Label htmlFor="bk-name" className="text-sm font-medium">
                             Full Name <span className="text-destructive">*</span>
                           </Label>
-                          <div className="relative">
-                            <User className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
+                          <div className="relative group">
+                            <User className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none transition-colors group-focus-within:text-gold" />
                             <Input
                               id="bk-name"
                               value={bookingForm.name}
                               onChange={(e) => setBookingForm({ ...bookingForm, name: e.target.value })}
                               placeholder="John Doe"
-                              className="pl-9 h-11"
+                              className="pl-9 h-11 transition-all duration-300 focus:border-gold/50 focus:shadow-[0_0_0_3px_rgba(212,175,105,0.1)]"
                             />
                           </div>
-                        </div>
-                        <div className="space-y-2">
+                        </motion.div>
+
+                        {/* Phone */}
+                        <motion.div
+                          initial={{ opacity: 0, y: 15 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.25, duration: 0.4 }}
+                          className="space-y-2"
+                        >
                           <Label htmlFor="bk-phone" className="text-sm font-medium">
                             Phone <span className="text-destructive">*</span>
                           </Label>
-                          <div className="relative">
-                            <Phone className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
+                          <div className="relative group">
+                            <Phone className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none transition-colors group-focus-within:text-gold" />
                             <Input
                               id="bk-phone"
                               value={bookingForm.phone}
                               onChange={(e) => setBookingForm({ ...bookingForm, phone: e.target.value })}
                               placeholder="+91 98765 43210"
-                              className="pl-9 h-11"
+                              className="pl-9 h-11 transition-all duration-300 focus:border-gold/50 focus:shadow-[0_0_0_3px_rgba(212,175,105,0.1)]"
                             />
                           </div>
-                        </div>
-                        <div className="space-y-2 sm:col-span-2">
+                        </motion.div>
+
+                        {/* Email */}
+                        <motion.div
+                          initial={{ opacity: 0, y: 15 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.35, duration: 0.4 }}
+                          className="space-y-2 sm:col-span-2"
+                        >
                           <Label htmlFor="bk-email" className="text-sm font-medium">
                             Email <span className="text-destructive">*</span>
                           </Label>
-                          <div className="relative">
-                            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
+                          <div className="relative group">
+                            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none transition-colors group-focus-within:text-gold" />
                             <Input
                               id="bk-email"
                               type="email"
                               value={bookingForm.email}
                               onChange={(e) => setBookingForm({ ...bookingForm, email: e.target.value })}
                               placeholder="you@example.com"
-                              className="pl-9 h-11"
+                              className="pl-9 h-11 transition-all duration-300 focus:border-gold/50 focus:shadow-[0_0_0_3px_rgba(212,175,105,0.1)]"
                             />
                           </div>
-                        </div>
+                        </motion.div>
+
+                        {/* Address — NEW field with animation */}
+                        <motion.div
+                          initial={{ opacity: 0, y: 15 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.45, duration: 0.4 }}
+                          className="space-y-2 sm:col-span-2"
+                        >
+                          <Label htmlFor="bk-address" className="text-sm font-medium">
+                            Address <span className="text-destructive">*</span>
+                          </Label>
+                          <div className="relative group">
+                            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none transition-colors group-focus-within:text-gold" />
+                            <Input
+                              id="bk-address"
+                              value={bookingForm.address}
+                              onChange={(e) => setBookingForm({ ...bookingForm, address: e.target.value })}
+                              placeholder="Flat 101, Sunrise Apartments, Bandra West, Mumbai 400050"
+                              className="pl-9 h-11 transition-all duration-300 focus:border-gold/50 focus:shadow-[0_0_0_3px_rgba(212,175,105,0.1)]"
+                            />
+                          </div>
+                          <p className="text-xs text-muted-foreground flex items-center gap-1">
+                            <MapPin className="size-3 text-gold" />
+                            Our designer will visit this address for the consultation
+                          </p>
+                        </motion.div>
                       </div>
 
                       {/* Booking summary + confirm */}
@@ -1041,6 +1117,7 @@ export function CalculatorPage() {
                             !bookingForm.name ||
                             !bookingForm.email ||
                             !bookingForm.phone ||
+                            !bookingForm.address ||
                             isSubmitting
                           }
                           className="w-full h-12 bg-gold text-gold-foreground hover:bg-gold/90 font-semibold tracking-wide disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-gold/20 hover:shadow-xl hover:shadow-gold/30 transition-all duration-300"
@@ -1062,8 +1139,8 @@ export function CalculatorPage() {
                           Free & no-obligation. We&apos;ll send a confirmation email instantly.
                         </p>
                       </div>
-                    </div>
-                  </div>
+                    </motion.div>
+                  </motion.div>
 
                   {/* Initial hint when no date selected */}
                   {!selectedDateId && (

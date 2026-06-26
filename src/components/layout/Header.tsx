@@ -85,8 +85,8 @@ export function Header() {
         ? 'text-white/80 group-hover:text-white'
         : 'text-foreground/70 group-hover:text-foreground'
   const phoneIconClass = overDarkHero
-    ? 'border-white/30 text-white/70 hover:text-gold hover:border-gold/40'
-    : 'border-border/60 text-foreground/60 hover:text-gold hover:border-gold/40'
+    ? 'border-gold/40 text-gold bg-gold/10 hover:bg-gold/20 hover:border-gold/60'
+    : 'border-border/60 text-foreground/70 hover:text-gold hover:border-gold/40 hover:bg-gold/5'
 
   return (
     <motion.header

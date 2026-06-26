@@ -16,9 +16,11 @@ import {
   CheckCircle2,
   Droplet,
   Gem,
+  MailCheck,
 } from 'lucide-react'
 import { useNavigation } from '@/store/navigation'
 import { useAuth } from '@/store/auth'
+import { supabaseBrowser } from '@/lib/supabase-browser'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -28,11 +30,12 @@ type Mode = 'login' | 'signup'
 
 export function AuthPage() {
   const { navigate } = useNavigation()
-  const { setuser } = useAuth()
+  const { fetchSession } = useAuth()
   const [mode, setMode] = useState<Mode>('login')
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [info, setInfo] = useState('') // for success messages (e.g., email confirmation)
 
   // Form state
   const [loginForm, setLoginForm] = useState({ email: '', password: '' })
@@ -44,27 +47,34 @@ export function AuthPage() {
     confirmPassword: '',
   })
 
-  // Pre-fill demo customer credentials on mount for convenience
+  // Clear any stale info when switching modes
   useEffect(() => {
-    setLoginForm({ email: 'customer@example.com', password: 'customer123' })
-  }, [])
+    setError('')
+    setInfo('')
+  }, [mode])
 
+  // ─── Customer Login via Supabase Auth ───
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+    setInfo('')
     setLoading(true)
     try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(loginForm),
+      const { data, error: sbError } = await supabaseBrowser.auth.signInWithPassword({
+        email: loginForm.email,
+        password: loginForm.password,
       })
-      const data = await res.json()
-      if (data.success) {
-        setuser(data.user)
+
+      if (sbError) {
+        setError(sbError.message || 'Login failed. Please check your credentials.')
+        setLoading(false)
+        return
+      }
+
+      // Success — refresh auth store to pick up Supabase session
+      if (data.user) {
+        await fetchSession()
         navigate('home')
-      } else {
-        setError(data.error || 'Login failed')
       }
     } catch {
       setError('Network error. Please try again.')
@@ -73,9 +83,11 @@ export function AuthPage() {
     }
   }
 
+  // ─── Customer Signup via Supabase Auth ───
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+    setInfo('')
 
     if (signupForm.password !== signupForm.confirmPassword) {
       setError('Passwords do not match')
@@ -88,22 +100,37 @@ export function AuthPage() {
 
     setLoading(true)
     try {
-      const res = await fetch('/api/auth/signup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: signupForm.name,
-          email: signupForm.email,
-          phone: signupForm.phone,
-          password: signupForm.password,
-        }),
+      const { data, error: sbError } = await supabaseBrowser.auth.signUp({
+        email: signupForm.email,
+        password: signupForm.password,
+        options: {
+          data: {
+            full_name: signupForm.name,
+            phone: signupForm.phone,
+          },
+        },
       })
-      const data = await res.json()
-      if (data.success) {
-        setuser(data.user)
+
+      if (sbError) {
+        setError(sbError.message || 'Signup failed.')
+        setLoading(false)
+        return
+      }
+
+      // Check if email confirmation is required
+      if (data.user && !data.session) {
+        // Email confirmation required
+        setInfo('Account created! Please check your email to confirm your account, then come back to log in.')
+        setMode('login')
+        setLoginForm({ email: signupForm.email, password: '' })
+        setLoading(false)
+        return
+      }
+
+      // If session is created immediately (email confirmation disabled)
+      if (data.session) {
+        await fetchSession()
         navigate('home')
-      } else {
-        setError(data.error || 'Signup failed')
       }
     } catch {
       setError('Network error. Please try again.')
@@ -257,7 +284,7 @@ export function AuthPage() {
                 {(['login', 'signup'] as Mode[]).map((m) => (
                   <button
                     key={m}
-                    onClick={() => { setMode(m); setError('') }}
+                    onClick={() => { setMode(m); setError(''); setInfo('') }}
                     className={`relative z-10 py-2.5 text-sm font-semibold tracking-wide transition-colors duration-300 ${
                       mode === m ? 'text-gold-foreground' : 'text-white/60 hover:text-white'
                     }`}
@@ -340,6 +367,17 @@ export function AuthPage() {
                       </motion.div>
                     )}
 
+                    {info && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="rounded-lg border border-green-500/30 bg-green-500/10 px-4 py-3 text-sm text-green-300 flex items-start gap-2"
+                      >
+                        <MailCheck className="size-4 shrink-0 mt-0.5" />
+                        <span>{info}</span>
+                      </motion.div>
+                    )}
+
                     <Button
                       type="submit"
                       disabled={loading}
@@ -358,13 +396,16 @@ export function AuthPage() {
                       )}
                     </Button>
 
-                    {/* Demo credentials hint */}
-                    <div className="rounded-lg border border-gold/20 bg-gold/5 px-4 py-3 text-xs text-white/60">
-                      <div className="flex items-center gap-1.5 mb-1.5 text-gold font-medium">
-                        <Sparkles className="size-3" /> Demo Credentials
-                      </div>
-                      <div>Customer: customer@example.com / customer123</div>
-                      <div>Admin: admin@auravix.com / admin123</div>
+                    {/* Admin login link */}
+                    <div className="text-center pt-2">
+                      <button
+                        type="button"
+                        onClick={() => navigate('admin-login')}
+                        className="text-xs text-white/40 hover:text-gold transition-colors inline-flex items-center gap-1"
+                      >
+                        <Shield className="size-3" />
+                        Admin Login
+                      </button>
                     </div>
                   </motion.form>
                 ) : (
@@ -472,6 +513,17 @@ export function AuthPage() {
                         className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300"
                       >
                         {error}
+                      </motion.div>
+                    )}
+
+                    {info && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="rounded-lg border border-green-500/30 bg-green-500/10 px-4 py-3 text-sm text-green-300 flex items-start gap-2"
+                      >
+                        <MailCheck className="size-4 shrink-0 mt-0.5" />
+                        <span>{info}</span>
                       </motion.div>
                     )}
 

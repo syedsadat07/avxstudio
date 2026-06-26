@@ -79,14 +79,14 @@ export function CTABanner() {
             size="lg"
             className="bg-gold text-gold-foreground hover:bg-gold/90 font-semibold tracking-wide px-8 h-12 text-base shadow-lg shadow-gold/20 transition-all duration-300 hover:shadow-xl hover:shadow-gold/30"
           >
-            Book a Slot
+            Book a Consultation
             <ArrowRight className="size-4 ml-1" />
           </Button>
           <Button
             onClick={() => navigate('calculator')}
             variant="outline"
             size="lg"
-            className="border-white/20 text-white hover:bg-white/10 hover:text-white font-medium tracking-wide px-8 h-12 text-base transition-all duration-300"
+            className="border-gold/40 text-gold hover:bg-gold/10 hover:border-gold/60 font-medium tracking-wide px-8 h-12 text-base transition-all duration-300"
           >
             Get Instant Quote
           </Button>

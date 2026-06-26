@@ -258,7 +258,7 @@ export function HeroSection() {
               className="relative bg-gold text-gold-foreground hover:bg-gold/90 font-semibold tracking-wide px-8 h-12 text-base shadow-[0_4px_30px_rgba(212,175,105,0.4)] transition-all duration-300 hover:shadow-[0_8px_40px_rgba(212,175,105,0.6)] overflow-hidden"
             >
               <span className="relative z-10 flex items-center">
-                Book a Slot
+                Book a Consultation
                 <motion.span
                   className="ml-1"
                   animate={{ x: [0, 4, 0] }}

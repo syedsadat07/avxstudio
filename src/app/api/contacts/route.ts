@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
+import { supabase } from '@/lib/supabase'
 
 export async function POST(request: NextRequest) {
   try {
@@ -27,6 +28,7 @@ export async function POST(request: NextRequest) {
 
     const referenceNumber = `AV-CT-${Math.random().toString(36).substring(2, 10).toUpperCase()}`
 
+    // ─── Save to local SQLite database ───
     try {
       await db.contactMessage.create({
         data: {
@@ -39,7 +41,33 @@ export async function POST(request: NextRequest) {
         },
       })
     } catch {
-      // Database save failed, continue with success response
+      // Local DB save failed, continue
+    }
+
+    // ─── Save to Supabase ───
+    let supabaseSaved = false
+    let supabaseError: string | null = null
+
+    try {
+      const { error: sbError } = await supabase.from('contact_messages').insert({
+        reference_number: referenceNumber,
+        full_name: body.fullName,
+        email: body.email,
+        phone: body.phone || null,
+        subject: body.subject,
+        message: body.message,
+        status: 'new',
+      })
+
+      if (sbError) {
+        console.error('Supabase insert error (contacts):', sbError.message)
+        supabaseError = sbError.message
+      } else {
+        supabaseSaved = true
+      }
+    } catch (err) {
+      console.error('Supabase connection error (contacts):', err)
+      supabaseError = err instanceof Error ? err.message : 'Unknown error'
     }
 
     return NextResponse.json(
@@ -47,6 +75,10 @@ export async function POST(request: NextRequest) {
         success: true,
         message: "Your message has been received. We'll get back to you within 24 hours.",
         referenceNumber,
+        supabase: {
+          saved: supabaseSaved,
+          error: supabaseError,
+        },
         data: {
           fullName: body.fullName,
           email: body.email,
