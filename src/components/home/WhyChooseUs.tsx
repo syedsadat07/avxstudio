@@ -104,7 +104,7 @@ export function WhyChooseUs() {
           initial="hidden"
           animate={isInView ? 'visible' : 'hidden'}
         >
-          {features.map((feature, idx) => (
+          {features.map((feature) => (
             <motion.div key={feature.title} variants={cardVariants} whileHover={{ y: -8 }} transition={{ type: 'spring', stiffness: 300, damping: 20 }}>
               <Card className="group relative h-full border-border/50 bg-card hover:border-gold/40 transition-all duration-500 hover:shadow-xl hover:shadow-gold/10 overflow-hidden">
                 {/* Gold gradient top accent on hover */}
@@ -124,10 +124,6 @@ export function WhyChooseUs() {
                   <p className="text-sm text-muted-foreground leading-relaxed">
                     {feature.description}
                   </p>
-                  {/* Number badge */}
-                  <span className="absolute top-4 right-4 text-5xl font-bold text-gold/5 group-hover:text-gold/10 transition-colors duration-500">
-                    0{idx + 1}
-                  </span>
                 </CardContent>
               </Card>
             </motion.div>

@@ -100,15 +100,6 @@ export function Footer() {
                   </button>
                 </li>
               ))}
-              <li>
-                <button
-                  onClick={() => navigate('admin-login')}
-                  className="group flex items-center gap-1.5 text-sm text-primary-foreground/60 hover:text-gold transition-colors duration-300"
-                >
-                  <ArrowRight className="size-3 opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300" />
-                  Admin Login
-                </button>
-              </li>
             </ul>
           </div>
 

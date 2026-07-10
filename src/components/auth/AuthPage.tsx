@@ -395,18 +395,6 @@ export function AuthPage() {
                         </>
                       )}
                     </Button>
-
-                    {/* Admin login link */}
-                    <div className="text-center pt-2">
-                      <button
-                        type="button"
-                        onClick={() => navigate('admin-login')}
-                        className="text-xs text-white/40 hover:text-gold transition-colors inline-flex items-center gap-1"
-                      >
-                        <Shield className="size-3" />
-                        Admin Login
-                      </button>
-                    </div>
                   </motion.form>
                 ) : (
                   /* ─── SIGNUP FORM ─── */
