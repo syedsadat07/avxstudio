@@ -105,7 +105,6 @@ export function AdminLoginPage() {
               </div>
             </button>
             <div className="inline-flex items-center gap-2 text-xs font-semibold tracking-[0.25em] uppercase text-gold mb-3">
-              <Shield className="size-4" />
               Secure Portal
             </div>
             <h1 className="text-3xl sm:text-4xl font-bold text-white">
@@ -210,7 +209,7 @@ export function AdminLoginPage() {
                     className="text-left rounded-lg border border-gold/20 bg-gold/5 px-3 py-2.5 hover:bg-gold/10 transition-colors group"
                   >
                     <div className="flex items-center gap-1.5 text-xs font-semibold text-gold">
-                      <Shield className="size-3" /> Admin
+                      Admin
                     </div>
                     <div className="text-[10px] text-white/40 mt-1 group-hover:text-white/60 transition-colors">
                       admin@auravix.com
@@ -221,7 +220,7 @@ export function AdminLoginPage() {
                     className="text-left rounded-lg border border-white/10 bg-white/5 px-3 py-2.5 hover:bg-white/10 transition-colors group"
                   >
                     <div className="flex items-center gap-1.5 text-xs font-semibold text-white/70">
-                      <User className="size-3" /> Customer
+                      Customer
                     </div>
                     <div className="text-[10px] text-white/40 mt-1 group-hover:text-white/60 transition-colors">
                       customer@example.com

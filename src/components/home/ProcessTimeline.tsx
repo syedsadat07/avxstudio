@@ -122,10 +122,6 @@ export function ProcessTimeline() {
               {/* Step circle with icon */}
               <div className="relative z-10 flex items-center justify-center w-20 h-20 rounded-full bg-gold text-gold-foreground shadow-lg shadow-gold/20 mb-4 transition-transform duration-300 hover:scale-110">
                 <step.icon className="size-7" />
-                {/* Step number badge */}
-                <span className="absolute -top-1 -right-1 flex items-center justify-center w-6 h-6 rounded-full bg-primary text-white text-xs font-bold border-2 border-gold">
-                  {step.number}
-                </span>
               </div>
 
               <h3 className="font-semibold text-foreground text-base mb-1">
@@ -157,9 +153,6 @@ export function ProcessTimeline() {
               {/* Step circle */}
               <div className="relative z-10 flex items-center justify-center w-20 h-20 rounded-full bg-gold text-gold-foreground shadow-lg shadow-gold/20 shrink-0">
                 <step.icon className="size-7" />
-                <span className="absolute -top-1 -right-1 flex items-center justify-center w-6 h-6 rounded-full bg-primary text-white text-xs font-bold border-2 border-gold">
-                  {step.number}
-                </span>
               </div>
 
               {/* Content */}
