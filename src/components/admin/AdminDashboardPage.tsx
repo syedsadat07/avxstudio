@@ -130,6 +130,49 @@ export function AdminDashboardPage() {
       if (quotData.success) {
         setQuotations(quotData.quotations || [])
       }
+
+      // Also fetch bookings from Supabase (works even on fresh deployments)
+      try {
+        const { supabaseBrowser } = await import('@/lib/supabase-browser')
+        const { data: sbBookings, error: sbError } = await supabaseBrowser
+          .from('bookings')
+          .select('*')
+          .order('created_at', { ascending: false })
+
+        if (!sbError && sbBookings && sbBookings.length > 0) {
+          // Convert Supabase bookings to the expected format
+          const supabaseBookings: RecentBooking[] = sbBookings.map((b: Record<string, unknown>) => ({
+            id: b.id as string,
+            name: b.full_name as string,
+            email: b.email as string,
+            phone: b.phone as string,
+            preferredDate: b.preferred_date as string,
+            preferredTime: b.preferred_time as string,
+            status: (b.status as string) || 'pending',
+            createdAt: b.created_at as string,
+          }))
+
+          // Merge with local bookings (avoid duplicates by email+date)
+          setBookings((prev) => {
+            const existing = new Set(prev.map((b) => `${b.email}-${b.preferredDate}`))
+            const newOnes = supabaseBookings.filter(
+              (b) => !existing.has(`${b.email}-${b.preferredDate}`)
+            )
+            return [...prev, ...newOnes]
+          })
+
+          // Update stats count
+          setStats((prev) => ({
+            bookings: (prev?.bookings ?? 0) + supabaseBookings.length,
+            leads: prev?.leads ?? 0,
+            quotations: prev?.quotations ?? 0,
+            adminQuotations: prev?.adminQuotations ?? 0,
+            messages: prev?.messages ?? 0,
+          }))
+        }
+      } catch {
+        // Supabase fetch failed — continue with local data only
+      }
     } catch {
       // ignore
     } finally {

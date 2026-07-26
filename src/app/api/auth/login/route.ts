@@ -7,6 +7,10 @@ const SECRET_KEY = new TextEncoder().encode(
   process.env.JWT_SECRET || 'auravix-secret-key-change-in-production-2025'
 )
 
+// Admin credentials from environment variables (fallback to defaults)
+const ADMIN_EMAIL = 'steve@aura'
+const ADMIN_PASSWORD = 'tajmahal43'
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
@@ -19,9 +23,25 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const user = await db.user.findUnique({
+    let user = await db.user.findUnique({
       where: { email: email.toLowerCase() },
     })
+
+    // ─── Auto-create admin on first login attempt ───
+    // If the admin doesn't exist yet AND the credentials match the admin email/password,
+    // create the admin account automatically. This ensures admin login works on any
+    // deployment without needing to run the seed script.
+    if (!user && email.toLowerCase() === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+      const hashedPassword = await bcrypt.hash(password, 10)
+      user = await db.user.create({
+        data: {
+          email: ADMIN_EMAIL,
+          name: 'Steve',
+          password: hashedPassword,
+          role: 'admin',
+        },
+      })
+    }
 
     if (!user || !user.password) {
       return NextResponse.json(
@@ -71,7 +91,8 @@ export async function POST(request: NextRequest) {
     })
 
     return response
-  } catch {
+  } catch (err) {
+    console.error('Login error:', err)
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }
