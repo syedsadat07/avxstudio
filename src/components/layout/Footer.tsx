@@ -110,16 +110,6 @@ export function Footer() {
                   Admin Login
                 </button>
               </li>
-              {/* One-time Admin Setup link */}
-              <li>
-                <button
-                  onClick={() => navigate('admin-setup')}
-                  className="group flex items-center gap-1.5 text-sm text-primary-foreground/40 hover:text-gold transition-colors duration-300"
-                >
-                  <ArrowRight className="size-3 opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300" />
-                  Admin Setup
-                </button>
-              </li>
             </ul>
           </div>
 

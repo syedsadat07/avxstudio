@@ -20,9 +20,9 @@ export function AdminLoginPage() {
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    // Pre-fill demo credentials on mount for convenience
-    setEmail('admin@auravix.com')
-    setPassword('admin123')
+    // Clear any pre-filled credentials
+    setEmail('')
+    setPassword('')
   }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -196,38 +196,6 @@ export function AdminLoginPage() {
                   )}
                 </Button>
               </form>
-
-              {/* Demo credentials */}
-              <div className="mt-6 pt-6 border-t border-white/10">
-                <div className="flex items-center gap-2 mb-3 text-xs text-white/40">
-                  <Sparkles className="size-3 text-gold" />
-                  Demo Credentials
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    onClick={fillAdmin}
-                    className="text-left rounded-lg border border-gold/20 bg-gold/5 px-3 py-2.5 hover:bg-gold/10 transition-colors group"
-                  >
-                    <div className="flex items-center gap-1.5 text-xs font-semibold text-gold">
-                      Admin
-                    </div>
-                    <div className="text-[10px] text-white/40 mt-1 group-hover:text-white/60 transition-colors">
-                      admin@auravix.com
-                    </div>
-                  </button>
-                  <button
-                    onClick={fillCustomer}
-                    className="text-left rounded-lg border border-white/10 bg-white/5 px-3 py-2.5 hover:bg-white/10 transition-colors group"
-                  >
-                    <div className="flex items-center gap-1.5 text-xs font-semibold text-white/70">
-                      Customer
-                    </div>
-                    <div className="text-[10px] text-white/40 mt-1 group-hover:text-white/60 transition-colors">
-                      customer@example.com
-                    </div>
-                  </button>
-                </div>
-              </div>
             </CardContent>
           </Card>
 
