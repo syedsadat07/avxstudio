@@ -59,17 +59,21 @@ export function AuthPage() {
     setInfo('')
     setLoading(true)
     try {
+      // Use the current origin as the redirect URL
+      // This works for localhost, preview URLs, and production domains
+      const redirectTo = window.location.origin
+
       const { error: sbError } = await supabaseBrowser.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: window.location.origin,
+          redirectTo: redirectTo,
         },
       })
       if (sbError) {
-        setError(sbError.message || 'Google login failed')
+        setError(sbError.message || 'Google login failed. Make sure Google OAuth is enabled in Supabase.')
         setLoading(false)
       }
-      // If successful, Supabase will redirect to Google → back to the site
+      // If successful, browser redirects to Google → back to redirectTo URL
       // The auth store will pick up the session on return
     } catch {
       setError('Google login failed. Please try again.')
