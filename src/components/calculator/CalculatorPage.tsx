@@ -309,8 +309,8 @@ export function CalculatorPage() {
       }
       await fetchSession()
       setShowLoginPopup(false)
-      // Auto-proceed with booking
-      handleConfirmBooking()
+      // Auto-proceed with booking (skip login check — user just logged in)
+      submitBooking()
     } catch {
       setAuthError('Login failed. Please try again.')
       setAuthLoading(false)
@@ -346,7 +346,7 @@ export function CalculatorPage() {
       if (data.session) {
         await fetchSession()
         setShowLoginPopup(false)
-        handleConfirmBooking()
+        submitBooking()
       }
     } catch {
       setAuthError('Signup failed. Please try again.')
@@ -366,15 +366,9 @@ export function CalculatorPage() {
     }
   }
 
-  const handleConfirmBooking = async () => {
+  // ─── Submit booking (no login check — used after login) ───
+  const submitBooking = async () => {
     if (!selectedDateId || !selectedTimeSlot || !bookingForm.name || !bookingForm.email || !bookingForm.phone || !bookingForm.address) return
-
-    // ─── Check if user is logged in ───
-    if (!user) {
-      setShowLoginPopup(true)
-      return
-    }
-
     setIsSubmitting(true)
     const selectedDay = weekDays.find((d) => d.id === selectedDateId)
     try {
@@ -401,6 +395,20 @@ export function CalculatorPage() {
     }
     setIsSubmitting(false)
     setBookingConfirmed(true)
+  }
+
+  // ─── Confirm Booking (checks login first) ───
+  const handleConfirmBooking = async () => {
+    if (!selectedDateId || !selectedTimeSlot || !bookingForm.name || !bookingForm.email || !bookingForm.phone || !bookingForm.address) return
+
+    // ─── Check if user is logged in ───
+    if (!user) {
+      setShowLoginPopup(true)
+      return
+    }
+
+    // User is logged in — proceed with booking
+    await submitBooking()
   }
 
   return (
