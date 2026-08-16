@@ -78,6 +78,42 @@ model AdminQuotation {
   updatedAt     DateTime @updatedAt
 }
 
+model Material {
+  id          String   @id @default(cuid())
+  name        String
+  category    String   // tiles, vanity, shower, faucet, accessories, sanitary, lighting, other
+  brand       String?
+  unit        String   @default("piece") // piece, sqft, set, meter
+  price       Float
+  description String?
+  imageUrl    String?
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model GeneratedQuotation {
+  id            String   @id @default(cuid())
+  quoteNumber   String   @unique
+  customerName  String
+  customerEmail String
+  customerPhone String?
+  customerAddress String?
+  bathroomArea  String?
+  projectType   String   @default("bathroom-renovation")
+  materials     String   // JSON array of selected materials with quantities
+  subtotal      Float
+  gstRate       Float    @default(18.0)
+  gstAmount     Float
+  totalAmount   Float
+  notes         String?
+  status        String   @default("generated") // generated | sent | accepted | rejected
+  createdById   String?
+  createdByName String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
 model Design {
   id          String   @id @default(cuid())
   title       String
