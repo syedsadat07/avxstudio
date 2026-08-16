@@ -49,7 +49,7 @@ export function Footer() {
               aria-label="Go to homepage"
             >
               <span className="flex items-center justify-center w-10 h-10 rounded-lg ring-1 ring-gold/30 bg-gradient-to-br from-gold/15 to-gold/5">
-                <img src="/auravix-mark.svg" alt="" className="w-7 h-7 object-contain" />
+                <img src="/auravix-logo.jpg" alt="" className="w-7 h-7 object-contain" />
               </span>
               <span className="flex flex-col leading-none">
                 <span className="text-2xl font-bold tracking-[0.2em] text-gold">

@@ -234,7 +234,7 @@ export function AuthPage() {
             className="inline-flex items-center gap-2.5 mb-8 w-fit"
           >
             <span className="flex items-center justify-center w-12 h-12 rounded-lg ring-1 ring-gold/30 bg-gradient-to-br from-gold/15 to-gold/5">
-              <img src="/auravix-mark.svg" alt="" className="w-8 h-8 object-contain" />
+              <img src="/auravix-logo.jpg" alt="" className="w-8 h-8 object-contain" />
             </span>
             <div className="flex flex-col leading-none text-left">
               <span className="text-2xl font-bold tracking-[0.2em] text-white">AURAVIX</span>
@@ -294,7 +294,7 @@ export function AuthPage() {
           <div className="lg:hidden text-center mb-6">
             <button onClick={() => navigate('home')} className="inline-flex items-center gap-2.5">
               <span className="flex items-center justify-center w-11 h-11 rounded-lg ring-1 ring-gold/30 bg-gradient-to-br from-gold/15 to-gold/5">
-                <img src="/auravix-mark.svg" alt="" className="w-7 h-7 object-contain" />
+                <img src="/auravix-logo.jpg" alt="" className="w-7 h-7 object-contain" />
               </span>
               <div className="flex flex-col leading-none text-left">
                 <span className="text-xl font-bold tracking-[0.2em] text-white">AURAVIX</span>

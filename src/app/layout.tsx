@@ -20,8 +20,8 @@ export const metadata: Metadata = {
   keywords: ["bathroom renovation", "modern bathroom designs", "bathroom interior", "luxury bathroom", "AURAVIX", "renovation India"],
   authors: [{ name: "AURAVIX" }],
   icons: {
-    icon: "/favicon.svg",
-    apple: "/favicon.svg",
+    icon: "/favicon.jpg",
+    apple: "/favicon.jpg",
   },
   openGraph: {
     title: "AURAVIX - Premium Bathroom Renovation & Interior Design",

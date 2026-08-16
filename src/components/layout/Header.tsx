@@ -121,7 +121,7 @@ export function Header() {
               aria-hidden="true"
             >
               <img
-                src="/auravix-mark.svg"
+                src="/auravix-logo.jpg"
                 alt=""
                 className="w-6 h-6 sm:w-7 sm:h-7 object-contain"
               />
@@ -319,7 +319,7 @@ export function Header() {
           <SheetHeader className="p-6 pb-4 border-b border-border/50">
             <SheetTitle className="flex items-center gap-2.5 leading-none">
               <span className="flex items-center justify-center w-10 h-10 rounded-lg shrink-0 ring-1 ring-gold/30 bg-gradient-to-br from-gold/15 to-gold/5">
-                <img src="/auravix-mark.svg" alt="" className="w-7 h-7 object-contain" />
+                <img src="/auravix-logo.jpg" alt="" className="w-7 h-7 object-contain" />
               </span>
               <span className="flex flex-col">
                 <span className="text-xl font-bold tracking-[0.2em] text-foreground">
