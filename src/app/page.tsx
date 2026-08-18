@@ -22,19 +22,34 @@ import { AdminLoginPage } from '@/components/admin/AdminLoginPage'
 import { AdminDashboardPage } from '@/components/admin/AdminDashboardPage'
 import { AdminSetupPage } from '@/components/admin/AdminSetupPage'
 import { AuthPage } from '@/components/auth/AuthPage'
+import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { useNavigation } from '@/store/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 
 function HomePage() {
   return (
     <>
-      <HeroSection />
-      <WhyChooseUs />
-      <PackagesPreview />
-      <GalleryPreview />
-      <Testimonials />
-      <ProcessTimeline />
-      <CTABanner />
+      <ErrorBoundary>
+        <HeroSection />
+      </ErrorBoundary>
+      <ErrorBoundary>
+        <WhyChooseUs />
+      </ErrorBoundary>
+      <ErrorBoundary>
+        <PackagesPreview />
+      </ErrorBoundary>
+      <ErrorBoundary>
+        <GalleryPreview />
+      </ErrorBoundary>
+      <ErrorBoundary>
+        <Testimonials />
+      </ErrorBoundary>
+      <ErrorBoundary>
+        <ProcessTimeline />
+      </ErrorBoundary>
+      <ErrorBoundary>
+        <CTABanner />
+      </ErrorBoundary>
     </>
   )
 }
@@ -45,35 +60,34 @@ export default function Home() {
   const renderPage = () => {
     switch (currentPage) {
       case 'lookbook':
-        return <LookbookPage />
+        return <ErrorBoundary><LookbookPage /></ErrorBoundary>
       case 'packages':
-        return <PackagesPage />
+        return <ErrorBoundary><PackagesPage /></ErrorBoundary>
       case 'calculator':
-        return <CalculatorPage />
+        return <ErrorBoundary><CalculatorPage /></ErrorBoundary>
       case 'booking':
-        return <BookingPage />
+        return <ErrorBoundary><BookingPage /></ErrorBoundary>
       case 'slot-booking':
-        return <SlotBookingPage />
+        return <ErrorBoundary><SlotBookingPage /></ErrorBoundary>
       case 'blog':
-        return <BlogPage />
+        return <ErrorBoundary><BlogPage /></ErrorBoundary>
       case 'about':
-        return <AboutPage />
+        return <ErrorBoundary><AboutPage /></ErrorBoundary>
       case 'contact':
-        return <ContactPage />
+        return <ErrorBoundary><ContactPage /></ErrorBoundary>
       case 'admin-login':
-        return <AdminLoginPage />
+        return <ErrorBoundary><AdminLoginPage /></ErrorBoundary>
       case 'admin-dashboard':
-        return <AdminDashboardPage />
+        return <ErrorBoundary><AdminDashboardPage /></ErrorBoundary>
       case 'admin-setup':
-        return <AdminSetupPage />
+        return <ErrorBoundary><AdminSetupPage /></ErrorBoundary>
       case 'auth':
-        return <AuthPage />
+        return <ErrorBoundary><AuthPage /></ErrorBoundary>
       default:
         return <HomePage />
     }
   }
 
-  // Admin & auth pages have their own full-screen layout (no header/footer)
   const isAdminPage = currentPage === 'admin-login' || currentPage === 'admin-dashboard' || currentPage === 'admin-setup' || currentPage === 'auth'
 
   if (isAdminPage) {
