@@ -54,15 +54,15 @@ type AddOnKey =
 
 // ─── Package pricing (per square foot) ───
 const PACKAGE_RATE: Record<PackageTier, number> = {
-  basic: 2500,
-  premium: 3500,
-  luxury: 4500,
+  basic: 2800,
+  premium: 3800,
+  luxury: 4800,
 }
 
 const PACKAGE_PRICE_LABEL: Record<PackageTier, string> = {
-  basic: '₹2,500/Sq. Ft.',
-  premium: '₹3,500/Sq. Ft.',
-  luxury: '₹4,500/Sq. Ft.',
+  basic: '₹2,800/Sq. Ft.',
+  premium: '₹3,800/Sq. Ft.',
+  luxury: '₹4,800/Sq. Ft.',
 }
 
 const TILE_LABELS: Record<TileType, string> = {
@@ -440,12 +440,144 @@ export function CalculatorPage() {
             AURAVIX Bath Studio
           </div>
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-foreground">
-            Instant Quotation <span className="text-gold">Calculator</span>
+            Packages & <span className="text-gold">Calculator</span>
           </h1>
           <p className="mt-5 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            Get an estimated cost for your bathroom renovation in minutes
+            Choose your package and get an estimated cost for your bathroom renovation in minutes
           </p>
         </motion.div>
+      </section>
+
+      {/* ─── Packages Comparison ─── */}
+      <section className="py-12 md:py-16 bg-muted/30" aria-label="Packages comparison">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="text-center mb-10"
+          >
+            <h2 className="text-2xl sm:text-3xl font-bold text-foreground">
+              Our <span className="text-gold">Packages</span>
+            </h2>
+            <p className="mt-2 text-muted-foreground">Transparent pricing per square foot</p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Basic */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              whileHover={{ y: -8 }}
+            >
+              <Card className="h-full border-border/50 bg-card hover:border-gold/30 transition-all duration-300 overflow-hidden">
+                <div className="h-1 bg-gradient-to-r from-transparent via-gold/40 to-transparent" />
+                <CardContent className="p-6">
+                  <span className="text-xs font-medium tracking-[0.15em] uppercase text-muted-foreground">Essential</span>
+                  <h3 className="text-xl font-bold text-foreground mt-1">Basic</h3>
+                  <p className="text-xs text-muted-foreground mt-1">Essential renovation for a fresh, functional bathroom</p>
+                  <div className="mt-3">
+                    <span className="text-3xl font-bold text-gold">₹2,800</span>
+                    <span className="text-sm text-muted-foreground ml-1">/Sq. Ft.</span>
+                  </div>
+                  <ul className="mt-4 space-y-2">
+                    {['Standard ceramic tiles', 'Basic wall-mounted vanity', 'Single-lever faucet', 'Standard showerhead', 'CP fittings & accessories', 'Exhaust fan', '10-year warranty'].map(f => (
+                      <li key={f} className="flex items-start gap-2 text-sm text-muted-foreground">
+                        <Check className="size-4 text-gold shrink-0 mt-0.5" />{f}
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            {/* Premium */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              whileHover={{ y: -8 }}
+              className="md:-mt-4"
+            >
+              <Card className="h-full border-gold/50 bg-card shadow-xl shadow-gold/10 transition-all duration-300 overflow-hidden">
+                <div className="h-1 bg-gradient-to-r from-gold via-yellow-400 to-gold" />
+                <div className="flex justify-center -mt-3">
+                  <Badge className="bg-gold text-gold-foreground font-semibold px-4 py-1 text-xs shadow-md">Most Popular</Badge>
+                </div>
+                <CardContent className="p-6">
+                  <span className="text-xs font-medium tracking-[0.15em] uppercase text-muted-foreground">Recommended</span>
+                  <h3 className="text-xl font-bold text-foreground mt-1">Premium</h3>
+                  <p className="text-xs text-muted-foreground mt-1">Perfect blend of style and functionality</p>
+                  <div className="mt-3">
+                    <span className="text-3xl font-bold text-gold">₹3,800</span>
+                    <span className="text-sm text-muted-foreground ml-1">/Sq. Ft.</span>
+                  </div>
+                  <ul className="mt-4 space-y-2">
+                    {['Premium vitrified tiles', 'Designer vanity with mirror', 'Sensor faucet', 'Rain shower system', 'Shower enclosure', 'LED mirror', '10-year warranty', 'Free consultation'].map(f => (
+                      <li key={f} className="flex items-start gap-2 text-sm text-muted-foreground">
+                        <Check className="size-4 text-gold shrink-0 mt-0.5" />{f}
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            {/* Luxury */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+              whileHover={{ y: -8 }}
+            >
+              <Card className="h-full border-border/50 bg-card hover:border-gold/30 transition-all duration-300 overflow-hidden">
+                <div className="h-1 bg-gradient-to-r from-transparent via-gold/40 to-transparent" />
+                <CardContent className="p-6">
+                  <span className="text-xs font-medium tracking-[0.15em] uppercase text-muted-foreground">Exclusive</span>
+                  <h3 className="text-xl font-bold text-foreground mt-1">Luxury</h3>
+                  <p className="text-xs text-muted-foreground mt-1">The ultimate bathroom experience</p>
+                  <div className="mt-3">
+                    <span className="text-3xl font-bold text-gold">₹4,800</span>
+                    <span className="text-sm text-muted-foreground ml-1">/Sq. Ft.</span>
+                  </div>
+                  <ul className="mt-4 space-y-2">
+                    {['Italian marble flooring', 'Custom designer vanity', 'Smart faucet & fixtures', 'Shower panel with body jets', 'Freestanding bathtub', 'Smart bathroom automation', 'Heated towel rack', '10-year warranty', 'Dedicated designer'].map(f => (
+                      <li key={f} className="flex items-start gap-2 text-sm text-muted-foreground">
+                        <Check className="size-4 text-gold shrink-0 mt-0.5" />{f}
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </div>
+
+          {/* Project Duration */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+            className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4"
+          >
+            {[
+              { pkg: 'Basic', days: '20-25 Days' },
+              { pkg: 'Premium', days: '25-30 Days' },
+              { pkg: 'Luxury', days: '30-35 Days' },
+            ].map(d => (
+              <div key={d.pkg} className="rounded-xl border border-border/50 bg-card p-4 text-center">
+                <div className="text-sm font-semibold text-foreground">{d.pkg}</div>
+                <div className="text-lg font-bold text-gold mt-1">{d.days}</div>
+                <div className="text-xs text-muted-foreground mt-0.5">Estimated completion</div>
+              </div>
+            ))}
+          </motion.div>
+        </div>
       </section>
 
       {/* ─── Calculator Body ─── */}

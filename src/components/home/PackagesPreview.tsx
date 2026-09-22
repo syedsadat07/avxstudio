@@ -21,7 +21,7 @@ const packages: Package[] = [
   {
     tier: 'Essential',
     name: 'Basic',
-    price: '₹2,500/Sq. Ft.',
+    price: '₹2,800/Sq. Ft.',
     features: [
       'Essential fittings',
       'Standard tiles',
@@ -33,7 +33,7 @@ const packages: Package[] = [
   {
     tier: 'Recommended',
     name: 'Premium',
-    price: '₹3,500/Sq. Ft.',
+    price: '₹3,800/Sq. Ft.',
     features: [
       'All Basic features',
       'Premium tiles',
@@ -48,7 +48,7 @@ const packages: Package[] = [
   {
     tier: 'Exclusive',
     name: 'Luxury',
-    price: '₹4,500/Sq. Ft.',
+    price: '₹4,800/Sq. Ft.',
     features: [
       'All Premium features',
       'Italian marble',

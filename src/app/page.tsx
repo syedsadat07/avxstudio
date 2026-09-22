@@ -62,7 +62,7 @@ export default function Home() {
       case 'lookbook':
         return <ErrorBoundary><LookbookPage /></ErrorBoundary>
       case 'packages':
-        return <ErrorBoundary><PackagesPage /></ErrorBoundary>
+        return <ErrorBoundary><CalculatorPage /></ErrorBoundary>
       case 'calculator':
         return <ErrorBoundary><CalculatorPage /></ErrorBoundary>
       case 'booking':
