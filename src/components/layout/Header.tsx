@@ -38,7 +38,7 @@ export function Header() {
 
   useEffect(() => {
     setMounted(true)
-    fetchSession()
+    fetchSession().catch(() => {})
     const handleScroll = () => {
       setScrolled(window.scrollY > 20)
     }
