@@ -163,17 +163,6 @@ export function Header() {
 
           {/* Desktop CTA + Mobile Menu */}
           <div className="flex items-center gap-2 sm:gap-3">
-            {/* Phone icon - desktop only */}
-            <motion.a
-              href="tel:+919876543210"
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.95 }}
-              className={`hidden lg:flex items-center justify-center size-9 rounded-full border transition-all duration-300 ${phoneIconClass}`}
-              aria-label="Call us"
-            >
-              <Phone className="size-4" />
-            </motion.a>
-
             {/* Login / Profile dropdown - desktop */}
             {mounted && user ? (
               <div className="relative hidden lg:block" ref={profileRef}>
@@ -263,22 +252,7 @@ export function Header() {
                   )}
                 </AnimatePresence>
               </div>
-            ) : (
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.97 }}
-                onClick={() => handleNavigate('auth')}
-                className={`hidden lg:flex items-center gap-1.5 px-4 h-9 rounded-full border text-sm font-medium transition-all duration-300 ${
-                  overDarkHero
-                    ? 'border-white/20 text-white hover:border-gold/40 hover:text-gold hover:bg-gold/10'
-                    : 'border-border text-foreground/70 hover:border-gold/40 hover:text-gold hover:bg-gold/5'
-                }`}
-                aria-label="Login or Sign up"
-              >
-                <LogIn className="size-4" />
-                Login
-              </motion.button>
-            )}
+            ) : null}
 
             {/* CTA Button - desktop with glow pulse */}
             <motion.div
@@ -405,17 +379,7 @@ export function Header() {
                   Logout
                 </Button>
               </>
-            ) : (
-              /* Logged out — login button */
-              <Button
-                onClick={() => handleNavigate('auth')}
-                variant="outline"
-                className="w-full h-11 font-medium tracking-wide border-border hover:border-gold/40 hover:text-gold"
-              >
-                <LogIn className="size-4 mr-2" />
-                Login / Sign Up
-              </Button>
-            )}
+            ) : null}
             <Button
               onClick={() => handleNavigate('calculator')}
               className="w-full bg-gold text-gold-foreground hover:bg-gold/90 font-semibold tracking-wide h-12 text-[15px] shadow-[0_4px_20px_rgba(212,175,105,0.3)] transition-all duration-300 hover:shadow-[0_6px_30px_rgba(212,175,105,0.5)]"
